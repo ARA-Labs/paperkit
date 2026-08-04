@@ -1,0 +1,60 @@
+\documentclass{article}
+
+% ---------------------------------------------------------------------------
+% One line picks the venue: arxiv | icml | neurips | neurips2025 | plain
+% Add `final' for camera-ready, `nopanel' to use the venue's native title block.
+% `make neurips' etc. override this from the command line without editing here.
+% ---------------------------------------------------------------------------
+\usepackage[arxiv]{styles/paperkit}
+
+% Your own macros go here.
+\newcommand{\method}{\textsc{Paperkit}}
+
+% ---------------------------------------------------------------------------
+% Front matter. Every field is optional except the title.
+% ---------------------------------------------------------------------------
+\papertitle[Paperkit: A Shared Preamble for ML Papers]{%
+  Paperkit:\\
+  A Shared Preamble for ML Papers%
+}
+\paperrunningtitle{Paperkit: A Shared Preamble for ML Papers}
+
+\paperauthors{%
+  First Author\textsuperscript{1,\,*},\ %
+  Second Author\textsuperscript{2},\ %
+  Third Author\textsuperscript{1,\,2}%
+}
+\paperaffiliations{%
+  \textsuperscript{1}Your University,\ %
+  \textsuperscript{2}Your Lab%
+}
+\papernote{\textsuperscript{*}Equal contribution.}
+
+\paperabstract{\input{sections/abstract}}
+
+\papercorrespondence{First Author (\href{mailto:you@example.edu}{you@example.edu})}
+\papercode{\href{https://github.com/you/your-repo}{github.com/you/your-repo}}
+% Wordmark plus one or more logos, laid out at the right of the panel footer.
+% Swap in your own files; \addpaperlogo takes an optional height.
+\paperlogo{}{figures/ara-logo.png}
+\paperlogoheight{20pt}
+% \addpaperlogo[26pt]{figures/logo-placeholder.pdf}
+
+% Panel look (optional):
+% \paperpanelcolor{EEF3F9}
+% \papertitlesize{19}{23}
+
+\begin{document}
+
+\makepaperheader
+
+\input{sections/introduction}
+\FloatBarrier
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}

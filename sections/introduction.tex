@@ -1,0 +1,41 @@
+\section{Introduction}
+\label{sec:intro}
+
+This paragraph exists so the template compiles to something you can look
+at. Replace it. Citations work through natbib in every venue mode, both
+parenthetical \citep{vaswani2017attention} and textual
+\citet{kingma2015adam}.
+
+Cross-references, math, and the usual environments behave as they always
+do:
+\begin{equation}
+  \label{eq:softmax}
+  \mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V .
+\end{equation}
+
+\begin{definition}[Shared preamble]
+  \label{def:preamble}
+  A preamble is \emph{shared} when changing it once changes every build of the
+  paper.
+\end{definition}
+
+Table~\ref{tab:venues} shows what each venue mode gives you. The check and
+cross marks come from \verb|\cmark| and \verb|\xmark|.
+
+\begin{table}[htb]
+  \centering
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    Venue option & Two-column & Anonymous & Panel header \\
+    \midrule
+    \texttt{arxiv}    & \cmark & \xmark & \cmark \\
+    \texttt{icml}     & \cmark & \cmark & \xmark \\
+    \texttt{neurips}  & \xmark & \cmark & \xmark \\
+    \texttt{plain}    & \xmark & \xmark & \xmark \\
+    \bottomrule
+  \end{tabular}
+  \caption{Defaults per venue. Override the last column with the
+  \texttt{panel} or \texttt{nopanel} package option.}
+  \label{tab:venues}
+\end{table}

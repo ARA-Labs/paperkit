@@ -1,0 +1,415 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% paperkit.sty -- one preamble for ML paper submissions.
+%%
+%% Bundles the packages, macros, and first-page layout that every ML paper
+%% needs, and switches venue style with a single option:
+%%
+%%   \usepackage[arxiv]{styles/paperkit}    % preprint, two-column (ICML style)
+%%   \usepackage[neurips]{styles/paperkit}  % NeurIPS 2026 submission
+%%   \usepackage[icml]{styles/paperkit}     % ICML 2026 submission
+%%   \usepackage[plain]{styles/paperkit}    % plain article, no venue style
+%%
+%% Options
+%%   arxiv | icml | neurips | neurips2025 | plain   venue (default: arxiv)
+%%   final          camera-ready / de-anonymized
+%%   panel          force the rounded title+abstract panel on
+%%   nopanel        force it off (use the venue's native \maketitle)
+%%   colorlinks     colored hyperlinks instead of boxed ones
+%%   notheorems     do not define theorem environments
+%%   minimal        skip the heavy optional packages (tikz, listings, pifont)
+%%
+%% The venue can also be set from the command line without editing main.tex:
+%%   pdflatex "\def\pkvenue{neurips}\input{main.tex}"
+%%
+%% If your venue .sty files live somewhere other than styles/, set
+%%   \def\pkstyledir{mydir/}
+%% BEFORE loading paperkit.
+%%
+%% Author: paperkit contributors. Public domain / CC0 -- copy it anywhere.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{paperkit}[2026/08/04 v1.0 Unified ML paper style kit]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% options %%
+\def\pk@venue{arxiv}
+\newif\ifpk@final      \pk@finalfalse
+\newif\ifpk@preprint   \pk@preprintfalse
+\newif\ifpk@panelset   \pk@panelsetfalse
+\newif\ifpk@panel      \pk@panelfalse
+\newif\ifpk@minimal    \pk@minimalfalse
+\newif\ifpk@theorems   \pk@theoremstrue
+\newif\ifpk@colorlinks \pk@colorlinksfalse
+
+\DeclareOption{arxiv}{\def\pk@venue{arxiv}}
+\DeclareOption{icml}{\def\pk@venue{icml}}
+\DeclareOption{neurips}{\def\pk@venue{neurips}}
+\DeclareOption{neurips2025}{\def\pk@venue{neurips2025}}
+\DeclareOption{plain}{\def\pk@venue{plain}}
+\DeclareOption{final}{\pk@finaltrue}
+\DeclareOption{preprint}{\pk@preprinttrue}
+\DeclareOption{panel}{\pk@panelsettrue\pk@paneltrue}
+\DeclareOption{nopanel}{\pk@panelsettrue\pk@panelfalse}
+\DeclareOption{minimal}{\pk@minimaltrue}
+\DeclareOption{notheorems}{\pk@theoremsfalse}
+\DeclareOption{colorlinks}{\pk@colorlinkstrue}
+\DeclareOption*{\PackageWarning{paperkit}{Unknown option `\CurrentOption'}}
+\ProcessOptions\relax
+
+% \def\pkvenue{...} on the command line wins over the package option.
+\@ifundefined{pkvenue}{}{\edef\pk@venue{\pkvenue}}
+
+\newif\ifpk@arxiv    \newif\ifpk@icml
+\newif\ifpk@neurips  \newif\ifpk@nrold  \newif\ifpk@plainvenue
+\def\pk@tmp{arxiv}\ifx\pk@venue\pk@tmp\pk@arxivtrue\fi
+\def\pk@tmp{icml}\ifx\pk@venue\pk@tmp\pk@icmltrue\fi
+\def\pk@tmp{neurips}\ifx\pk@venue\pk@tmp\pk@neuripstrue\fi
+\def\pk@tmp{neurips2025}\ifx\pk@venue\pk@tmp\pk@neuripstrue\pk@nroldtrue\fi
+\def\pk@tmp{plain}\ifx\pk@venue\pk@tmp\pk@plainvenuetrue\fi
+\ifpk@arxiv\else\ifpk@icml\else\ifpk@neurips\else\ifpk@plainvenue\else
+  \PackageError{paperkit}{Unknown venue `\pk@venue'}%
+    {Use one of: arxiv, icml, neurips, neurips2025, plain.}%
+\fi\fi\fi\fi
+
+% Blind venues: paperkit-rendered headers (panel, ICML box) must hide authors
+% unless `final' is given. The NeurIPS style anonymizes its native block itself.
+\newif\ifpk@anon \pk@anonfalse
+\ifpk@final\else\ifpk@preprint\else
+  \ifpk@icml\pk@anontrue\fi
+  \ifpk@neurips\pk@anontrue\fi
+\fi\fi
+
+% Panel is the default look for preprints only; venues get their native block.
+\ifpk@panelset\else
+  \ifpk@arxiv\pk@paneltrue\else\pk@panelfalse\fi
+\fi
+
+\providecommand{\pkstyledir}{styles/}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% venue style file %%
+% hyperref goes BEFORE the ICML style (it hooks into \hypersetup at load time)
+% and AFTER the NeurIPS style (which redefines the title block).
+\PassOptionsToPackage{hyphens}{url}
+\RequirePackage{url}
+
+\newcommand{\pk@loadhyperref}{%
+  \@ifpackageloaded{hyperref}{}{\RequirePackage{hyperref}}%
+}
+
+% \pkstyledir has to be expanded before \RequirePackage sees the file name.
+\newcommand{\pk@require}[2]{%
+  \edef\pk@load{\noexpand\RequirePackage[#1]{\pkstyledir #2}}\pk@load
+}
+
+\ifpk@arxiv
+  \pk@loadhyperref
+  \pk@require{preprint}{icml2026}
+\fi
+\ifpk@icml
+  \pk@loadhyperref
+  \ifpk@final
+    \pk@require{accepted}{icml2026}
+  \else
+    \pk@require{}{icml2026}
+  \fi
+\fi
+\ifpk@neurips
+  \ifpk@nrold
+    \def\pk@venuefile{neurips_2025}
+  \else
+    \def\pk@venuefile{neurips_2026}
+  \fi
+  % NeurIPS camera-ready also needs a track option (main / position / eandd /
+  % creativeai); override with \def\pkneuripstrack{position} before loading.
+  \providecommand{\pkneuripstrack}{main}
+  \ifpk@final
+    \edef\pk@load{\noexpand\RequirePackage[nonatbib,final,\pkneuripstrack]%
+      {\pkstyledir\pk@venuefile}}
+  \else\ifpk@preprint
+    \edef\pk@load{\noexpand\RequirePackage[nonatbib,preprint]{\pkstyledir\pk@venuefile}}
+  \else
+    \edef\pk@load{\noexpand\RequirePackage[nonatbib]{\pkstyledir\pk@venuefile}}
+  \fi\fi
+  \pk@load
+  \RequirePackage[numbers]{natbib}
+  \pk@loadhyperref
+\fi
+\ifpk@plainvenue
+  \pk@loadhyperref
+  \@ifpackageloaded{natbib}{}{\RequirePackage[numbers]{natbib}}
+\fi
+
+\ifpk@colorlinks
+  \hypersetup{colorlinks=true,linkcolor=black,citecolor=blue!55!black,
+              urlcolor=blue!55!black,filecolor=blue!55!black}
+\fi
+
+% Let \\ inside the title survive its trip into the PDF metadata.
+\AtBeginDocument{%
+  \@ifpackageloaded{hyperref}{\pdfstringdefDisableCommands{\let\\\space}}{}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% common packages %%
+\RequirePackage[T1]{fontenc}
+\RequirePackage{microtype}
+\RequirePackage{graphicx}
+\RequirePackage{subcaption}
+\RequirePackage{booktabs}
+\RequirePackage{multirow}
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
+\RequirePackage{amsthm}
+\RequirePackage{nicefrac}
+\RequirePackage{xcolor}
+\RequirePackage{enumitem}
+\RequirePackage{placeins}   % \FloatBarrier
+\RequirePackage{helvet}     % sans-serif for the title panel
+\RequirePackage{tcolorbox}  % rounded title panel
+
+% Better \figure* placement in two-column layouts.
+\if@twocolumn\RequirePackage{stfloats}\fi
+
+\ifpk@minimal\else
+  \RequirePackage{listings}
+  \RequirePackage{pifont}
+  \RequirePackage{tikz}
+  \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds}
+\fi
+
+% hyperref + algorithmic need this to agree on labels.
+\providecommand{\theHalgorithm}{\arabic{algorithm}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% small niceties %%
+\ifpk@minimal
+  \newcommand{\cmark}{\textcolor{green!60!black}{$\checkmark$}}
+  \newcommand{\xmark}{\textcolor{red!70!black}{$\times$}}
+\else
+  \newcommand{\cmark}{\textcolor{green!60!black}{\ding{51}}}
+  \newcommand{\xmark}{\textcolor{red!70!black}{\ding{55}}}
+\fi
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+\ifpk@minimal\else
+  \lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    framesep=3pt,
+    columns=fullflexible,
+    backgroundcolor=\color{gray!5},
+    keywordstyle=\color{blue!70!black},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red!60!black},
+  }
+\fi
+
+\ifpk@theorems
+  \theoremstyle{plain}
+  \newtheorem{theorem}{Theorem}[section]
+  \newtheorem{lemma}[theorem]{Lemma}
+  \newtheorem{proposition}[theorem]{Proposition}
+  \newtheorem{corollary}[theorem]{Corollary}
+  \theoremstyle{definition}
+  \newtheorem{definition}{Definition}[section]
+  \newtheorem{assumption}{Assumption}[section]
+  \theoremstyle{remark}
+  \newtheorem{remark}{Remark}[section]
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% metadata %%
+\let\pk@title\@empty
+\let\pk@pdftitle\@empty
+\let\pk@authors\@empty
+\let\pk@affils\@empty
+\let\pk@abstract\@empty
+\let\pk@note\@empty
+\let\pk@corr\@empty
+\let\pk@code\@empty
+\let\pk@logotext\@empty
+\let\pk@logofile\@empty
+\let\pk@extralogos\@empty
+
+% \papertitle[<plain text for PDF metadata>]{<typeset title, \\ allowed>}
+\newcommand{\papertitle}[2][]{%
+  \gdef\pk@title{#2}%
+  \def\pk@tmp{#1}%
+  \ifx\pk@tmp\@empty\gdef\pk@pdftitle{#2}\else\gdef\pk@pdftitle{#1}\fi
+}
+% Short title for the running header (ICML-based venues only).
+\newcommand{\paperrunningtitle}[1]{\@ifundefined{icmltitlerunning}{}{\icmltitlerunning{#1}}}
+\newcommand{\paperauthors}[1]{\gdef\pk@authors{#1}}
+\newcommand{\paperaffiliations}[1]{\gdef\pk@affils{#1}}
+\newcommand{\paperabstract}[1]{\gdef\pk@abstract{#1}}
+\newcommand{\papernote}[1]{\gdef\pk@note{#1}}          % equal contribution, etc.
+\newcommand{\papercorrespondence}[1]{\gdef\pk@corr{#1}}
+\newcommand{\papercode}[1]{\gdef\pk@code{#1}}
+% \paperlogo{<wordmark text>}{<image file, may be empty>}
+\newcommand{\paperlogo}[2]{\gdef\pk@logotext{#1}\gdef\pk@logofile{#2}}
+% \addpaperlogo[<height>]{<image file>} -- extra marks, laid out to the right of
+% the first one. Call it once per logo, in the order they should appear.
+\newcommand{\addpaperlogo}[2][\pk@logoheight]{%
+  \expandafter\gdef\expandafter\pk@extralogos\expandafter{\pk@extralogos
+    \,$\vcenter{\hbox{\includegraphics[height=#1]{#2}}}$}%
+}
+
+% Panel appearance.
+\definecolor{pkpanelbg}{HTML}{EEF3F9}
+\newcommand{\paperpanelcolor}[1]{\definecolor{pkpanelbg}{HTML}{#1}}
+\def\pk@titlesize{19}\def\pk@titleskip{23}
+\newcommand{\papertitlesize}[2]{\def\pk@titlesize{#1}\def\pk@titleskip{#2}}
+\def\pk@panelarc{8pt}
+\newcommand{\paperpanelarc}[1]{\def\pk@panelarc{#1}}
+\def\pk@logoheight{30pt}
+\newcommand{\paperlogoheight}[1]{\def\pk@logoheight{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% panel header %%
+% Wrapped in \newtcolorbox on purpose: writing \begin{tcolorbox}[...] inside
+% \twocolumn[...] breaks, because LaTeX reads the option list's `]' as the end
+% of the \twocolumn argument.
+\newtcolorbox{pk@panelbox}{%
+  colback=pkpanelbg,
+  colframe=pkpanelbg,
+  arc=\pk@panelarc,
+  boxrule=0pt,
+  left=18pt, right=18pt, top=16pt, bottom=14pt,
+  width=\textwidth,
+  enlarge left by=0pt,
+  enlarge right by=0pt,
+}
+
+\newif\ifpk@footer
+\newcommand{\pk@footerrow}{%
+  \pk@footerfalse
+  \ifx\pk@corr\@empty\else\pk@footertrue\fi
+  \ifx\pk@code\@empty\else\pk@footertrue\fi
+  \ifx\pk@logotext\@empty\else\pk@footertrue\fi
+  \ifx\pk@logofile\@empty\else\pk@footertrue\fi
+  \ifx\pk@extralogos\@empty\else\pk@footertrue\fi
+  \ifpk@footer\pk@footerrow@\fi
+}
+% \parbox, not minipage: the optional argument of \begin{minipage}[c]{..} is
+% mis-parsed inside \twocolumn[...] for the same `]' reason as above.
+\newcommand{\pk@footerrow@}{%
+  \vskip 14pt
+  \noindent
+  \parbox{0.62\linewidth}{%
+    \ifx\pk@corr\@empty\else
+      \noindent\textbf{Correspondence:}\ \pk@corr\par\vskip 2pt
+    \fi
+    \ifx\pk@code\@empty\else
+      \noindent\textbf{Code:}\ \pk@code
+    \fi
+  }\hfill
+  \ifx\pk@logotext\@empty\else
+    $\vcenter{\hbox{\sffamily\bfseries\small \pk@logotext}}$\,%
+  \fi
+  \ifx\pk@logofile\@empty\else
+    $\vcenter{\hbox{\includegraphics[height=\pk@logoheight]{\pk@logofile}}}$%
+  \fi
+  \pk@extralogos
+}
+
+\newcommand{\pk@panelbody}{%
+  \begin{pk@panelbox}
+    \raggedright
+    {\sffamily\bfseries\fontsize{\pk@titlesize}{\pk@titleskip}\selectfont
+      \pk@title\par}
+    \ifpk@anon
+      \vskip 12pt
+      {\sffamily\bfseries\normalsize Anonymous Authors\par}
+      \vskip 4pt
+      {\small Paper under double-blind review\par}
+    \else
+      \ifx\pk@authors\@empty\else
+        \vskip 12pt
+        {\sffamily\bfseries\normalsize \pk@authors\par}
+      \fi
+      \ifx\pk@affils\@empty\else
+        \vskip 6pt
+        {\small \pk@affils\par}
+      \fi
+      \ifx\pk@note\@empty\else
+        \vskip 4pt
+        {\small \pk@note\par}
+      \fi
+    \fi
+    \ifx\pk@abstract\@empty\else
+      \vskip 14pt
+      \pk@abstract
+    \fi
+    \ifpk@anon\else\pk@footerrow\fi
+  \end{pk@panelbox}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% native header %%
+% Everything the venue style already knows how to typeset. NeurIPS handles its
+% own anonymization, so we hand it the real author block unconditionally.
+\newcommand{\pk@authorblock}{%
+  \pk@authors
+  \ifx\pk@affils\@empty\else\\[2pt]{\small\pk@affils}\fi
+  \ifx\pk@corr\@empty\else\\[2pt]{\small\texttt{\pk@corr}}\fi
+}
+
+\newcommand{\pk@nativeheader}{%
+  \title{\pk@title}%
+  \author{\pk@authorblock}%
+  \maketitle
+  \ifx\pk@abstract\@empty\else
+    \begin{abstract}\pk@abstract\end{abstract}%
+  \fi
+}
+
+% ICML's native block wants \icmlauthorlist / \icmlaffiliation, which paperkit
+% deliberately does not wrap. Write them yourself in main.tex if you need the
+% real thing; this is a readable stand-in.
+\newcommand{\pk@icmlheader}{%
+  \twocolumn[%
+    \icmltitle{\pk@title}%
+    \pk@icmlauthorbox
+  ]%
+}
+\newcommand{\pk@icmlauthorbox}{%
+  \begin{center}
+    \ifpk@anon
+      {\bfseries Anonymous Authors\par}
+      \vskip 4pt{\small Paper under double-blind review\par}
+    \else
+      \ifx\pk@authors\@empty\else{\bfseries\pk@authors\par}\fi
+      \ifx\pk@affils\@empty\else\vskip 4pt{\small\pk@affils\par}\fi
+      \ifx\pk@note\@empty\else\vskip 4pt{\small\pk@note\par}\fi
+    \fi
+  \end{center}
+  \vskip 0.2in
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% render %%
+\newcommand{\makepaperheader}{%
+  \ifx\pk@title\@empty
+    \PackageError{paperkit}{No title}%
+      {Set \string\papertitle{...} in the preamble before \string\makepaperheader.}%
+  \fi
+  % The ICML style nags at \end{document} unless \printAffiliationsAndNotice
+  % was called. paperkit's header carries that information itself.
+  \@ifundefined{icml@noticeprintedtrue}{}{\global\icml@noticeprintedtrue}%
+  \ifpk@panel
+    \if@twocolumn
+      \twocolumn[\thispagestyle{plain}\pk@panelbody]%
+    \else
+      \thispagestyle{plain}\pk@panelbody\vskip 14pt
+    \fi
+  \else
+    \ifpk@icml
+      \pk@icmlheader
+      \ifx\pk@abstract\@empty\else\begin{abstract}\pk@abstract\end{abstract}\fi
+    \else
+      \ifpk@arxiv
+        \pk@icmlheader
+        \ifx\pk@abstract\@empty\else\begin{abstract}\pk@abstract\end{abstract}\fi
+      \else
+        \pk@nativeheader
+      \fi
+    \fi
+  \fi
+  \@ifundefined{hypersetup}{}{\hypersetup{pdftitle={\pk@pdftitle}}}%
+}
+\endinput
