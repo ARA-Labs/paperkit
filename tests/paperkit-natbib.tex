@@ -1,0 +1,25 @@
+\documentclass{article}
+\providecommand{\paperkitvenue}{arxiv}
+\edef\loadpaperkit{\noexpand\usepackage[\paperkitvenue]{styles/paperkit}}
+\loadpaperkit
+\makeatletter
+\@ifpackageloaded{natbib}{}{\PackageError{paperkit-test}{PaperKit did not load natbib by default}{}}
+\ifdefstring{\paperkitvenue}{neurips}{%
+  \if@natbib\else
+    \PackageError{paperkit-test}{NeurIPS did not load natbib through its native path}{}
+  \fi
+}{}
+\ifdefstring{\paperkitvenue}{neurips2025}{%
+  \if@natbib\else
+    \PackageError{paperkit-test}{NeurIPS 2025 did not load natbib through its native path}{}
+  \fi
+}{}
+\makeatother
+\papertitle{PaperKit smoke test}
+\paperrunningtitle{PaperKit smoke test}
+\paperauthors{Test Author}
+\paperaffiliations{Test University}
+\begin{document}
+\makepaperheader
+PaperKit loads natbib by default.
+\end{document}

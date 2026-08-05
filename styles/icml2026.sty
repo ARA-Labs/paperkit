@@ -107,7 +107,7 @@
 %%%%%%%%%%%%%%%%%%%%
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{icml2026}[2025/10/29 v2.0 ICML Conference Style File]
+\ProvidesPackage{icml2026}[2026/08/05 v2.0 ICML Conference Style File with PaperKit nonatbib support]
 
 % Before 2018, \usepackage{times} was in the example TeX, but inevitably
 % not everybody did it.
@@ -120,13 +120,16 @@
 \RequirePackage{xcolor} % changed from color to xcolor (2021/11/24)
 \RequirePackage{algorithm}
 \RequirePackage{algorithmic}
-\RequirePackage{natbib}
 \RequirePackage{eso-pic} % used by \AddToShipoutPicture
 \RequirePackage{forloop}
 \RequirePackage{url}
 \RequirePackage{caption}
 
 %%%%%%%% Options
+\newif\ificml@natbib
+\icml@natbibtrue
+\DeclareOption{nonatbib}{\icml@natbibfalse}
+
 \DeclareOption{accepted}{%
   \renewcommand{\Notice@String}{\ICML@appearing}
   \gdef\isaccepted{1}
@@ -169,6 +172,9 @@ International Conference on Machine Learning (ICML)\@.  Do not distribute.}
 
 % Cause the declared options to actually be parsed and activated
 \ProcessOptions\relax
+\ificml@natbib
+  \RequirePackage{natbib}
+\fi
 
 % After options are processed, decide if authors should be visible
 \ifdefined\isaccepted \icmlshowauthorstrue \fi
@@ -548,7 +554,9 @@ the offending package(s), or layout-changing commands and try again.
 }
 
 % modification to natbib citations
-\setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
+\ificml@natbib
+  \setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
+\fi
 
 % Redefinition of the abstract environment.
 \renewenvironment{abstract}

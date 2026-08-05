@@ -12,6 +12,7 @@
 %% Options
 %%   arxiv | icml | neurips | neurips2025 | plain   venue (default: arxiv)
 %%   final          camera-ready / de-anonymized
+%%   nonatbib      do not load natbib (for BibLaTeX documents)
 %%   panel          force the rounded title+abstract panel on
 %%   nopanel        force it off (use the venue's native \maketitle)
 %%   colorlinks     colored hyperlinks instead of boxed ones
@@ -28,7 +29,7 @@
 %% Author: paperkit contributors. Public domain / CC0 -- copy it anywhere.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{paperkit}[2026/08/04 v1.0 Unified ML paper style kit]
+\ProvidesPackage{paperkit}[2026/08/05 v1.1 Unified ML paper style kit]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% options %%
 \def\pk@venue{arxiv}
@@ -39,6 +40,7 @@
 \newif\ifpk@minimal    \pk@minimalfalse
 \newif\ifpk@theorems   \pk@theoremstrue
 \newif\ifpk@colorlinks \pk@colorlinksfalse
+\newif\ifpk@natbib     \pk@natbibtrue
 
 \DeclareOption{arxiv}{\def\pk@venue{arxiv}}
 \DeclareOption{icml}{\def\pk@venue{icml}}
@@ -52,6 +54,7 @@
 \DeclareOption{minimal}{\pk@minimaltrue}
 \DeclareOption{notheorems}{\pk@theoremsfalse}
 \DeclareOption{colorlinks}{\pk@colorlinkstrue}
+\DeclareOption{nonatbib}{\pk@natbibfalse}
 \DeclareOption*{\PackageWarning{paperkit}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
@@ -102,14 +105,26 @@
 
 \ifpk@arxiv
   \pk@loadhyperref
-  \pk@require{preprint}{icml2026}
+  \ifpk@natbib
+    \pk@require{preprint}{icml2026}
+  \else
+    \pk@require{preprint,nonatbib}{icml2026}
+  \fi
 \fi
 \ifpk@icml
   \pk@loadhyperref
   \ifpk@final
-    \pk@require{accepted}{icml2026}
+    \ifpk@natbib
+      \pk@require{accepted}{icml2026}
+    \else
+      \pk@require{accepted,nonatbib}{icml2026}
+    \fi
   \else
-    \pk@require{}{icml2026}
+    \ifpk@natbib
+      \pk@require{}{icml2026}
+    \else
+      \pk@require{nonatbib}{icml2026}
+    \fi
   \fi
 \fi
 \ifpk@neurips
@@ -121,21 +136,35 @@
   % NeurIPS camera-ready also needs a track option (main / position / eandd /
   % creativeai); override with \def\pkneuripstrack{position} before loading.
   \providecommand{\pkneuripstrack}{main}
-  \ifpk@final
-    \edef\pk@load{\noexpand\RequirePackage[nonatbib,final,\pkneuripstrack]%
-      {\pkstyledir\pk@venuefile}}
-  \else\ifpk@preprint
-    \edef\pk@load{\noexpand\RequirePackage[nonatbib,preprint]{\pkstyledir\pk@venuefile}}
+  \ifpk@natbib
+    % Preserve the venue's native natbib path; only preconfigure its options.
+    \PassOptionsToPackage{numbers}{natbib}
+    \ifpk@final
+      \edef\pk@load{\noexpand\RequirePackage[final,\pkneuripstrack]%
+        {\pkstyledir\pk@venuefile}}
+    \else\ifpk@preprint
+      \edef\pk@load{\noexpand\RequirePackage[preprint]{\pkstyledir\pk@venuefile}}
+    \else
+      \edef\pk@load{\noexpand\RequirePackage{\pkstyledir\pk@venuefile}}
+    \fi\fi
   \else
-    \edef\pk@load{\noexpand\RequirePackage[nonatbib]{\pkstyledir\pk@venuefile}}
-  \fi\fi
+    \ifpk@final
+      \edef\pk@load{\noexpand\RequirePackage[nonatbib,final,\pkneuripstrack]%
+        {\pkstyledir\pk@venuefile}}
+    \else\ifpk@preprint
+      \edef\pk@load{\noexpand\RequirePackage[nonatbib,preprint]{\pkstyledir\pk@venuefile}}
+    \else
+      \edef\pk@load{\noexpand\RequirePackage[nonatbib]{\pkstyledir\pk@venuefile}}
+    \fi\fi
+  \fi
   \pk@load
-  \RequirePackage[numbers]{natbib}
   \pk@loadhyperref
 \fi
 \ifpk@plainvenue
   \pk@loadhyperref
-  \@ifpackageloaded{natbib}{}{\RequirePackage[numbers]{natbib}}
+  \ifpk@natbib
+    \@ifpackageloaded{natbib}{}{\RequirePackage[numbers]{natbib}}
+  \fi
 \fi
 
 \ifpk@colorlinks
