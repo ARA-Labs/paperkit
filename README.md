@@ -76,6 +76,7 @@ venue's abstract environment for the submission.
 | --- | --- |
 | `final` | Camera-ready: de-anonymize, print the conference notice |
 | `preprint` | NeurIPS style in preprint mode (named authors, no notice) |
+| `nonatbib` | Do not load natbib, so the document can use BibLaTeX |
 | `panel` / `nopanel` | Force the rounded title panel on or off |
 | `colorlinks` | Colored hyperlinks instead of boxed ones |
 | `notheorems` | Skip the theorem environments |
@@ -134,7 +135,12 @@ You do not need to re-`\usepackage` any of these: `microtype`, `graphicx`,
 `nicefrac`, `xcolor`, `enumitem`, `placeins`, `hyperref`, `natbib`, `url`,
 `tcolorbox`, `helvet`, plus `listings`, `tikz`, and `pifont` unless you asked
 for `minimal`. `stfloats` is added in two-column modes so `figure*` can sit at
-the bottom of a page.
+the bottom of a page. To use BibLaTeX instead of the default natbib path:
+
+```latex
+\usepackage[arxiv,nonatbib]{styles/paperkit}
+\usepackage[backend=biber]{biblatex}
+```
 
 It also defines `\cmark`, `\xmark`, `\todo{...}`, a `lstset` style for code
 listings, and the usual theorem environments (`theorem`, `lemma`,

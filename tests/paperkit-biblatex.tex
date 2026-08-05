@@ -1,0 +1,13 @@
+\documentclass{article}
+\providecommand{\paperkitvenue}{arxiv}
+\edef\loadpaperkit{\noexpand\usepackage[\paperkitvenue,nonatbib]{styles/paperkit}}
+\loadpaperkit
+\usepackage[backend=biber]{biblatex}
+\papertitle{PaperKit smoke test}
+\paperrunningtitle{PaperKit smoke test}
+\paperauthors{Test Author}
+\paperaffiliations{Test University}
+\begin{document}
+\makepaperheader
+PaperKit permits BibLaTeX when \texttt{nonatbib} is selected.
+\end{document}

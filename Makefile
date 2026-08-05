@@ -34,7 +34,7 @@ else
   PKOPTS = \PassOptionsToPackage{$(ALLOPTS)}{styles/paperkit}
 endif
 
-.PHONY: all arxiv icml neurips neurips2025 plain build clean distclean
+.PHONY: all arxiv icml neurips neurips2025 plain build test clean distclean
 
 all: arxiv
 
@@ -49,6 +49,9 @@ build:
 	@mkdir -p build
 	@cp $(MAIN).pdf build/$(MAIN)-$(VENUE).pdf
 	@echo "==> $(MAIN).pdf (venue: $(VENUE)) and build/$(MAIN)-$(VENUE).pdf"
+
+test:
+	./tests/test-paperkit.sh
 
 clean:
 	rm -f $(MAIN).aux $(MAIN).log $(MAIN).out $(MAIN).bbl $(MAIN).blg \
