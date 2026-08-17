@@ -624,27 +624,30 @@
     \fi
   }
 
-  % Mark and wordmark centred on each other. \vcenter needs math mode, which
-  % is also what keeps the tall mark from pushing the head baseline around.
-  % The wordmark always takes the ink, never a user-chosen rule colour.
-  \newcommand{\pk@lockup}{%
-    \begingroup
-      \color{pkbrandink}%
-      \ifx\pk@brandfile\@empty\else
-        $\vcenter{\hbox{\includegraphics[height=\pk@brandheight]{\pk@brandfile}}}$%
-      \fi
-      \ifx\pk@brandtext\@empty\else
-        \ifx\pk@brandfile\@empty\else\hskip 5\p@\fi
-        $\vcenter{\hbox{\sffamily\fontsize{10}{10}\selectfont\pk@brandtext}}$%
-      \fi
-    \endgroup
-  }
-
   % acmart's \@headfootfont, which under Libertine means Biolinum -- the same
   % sans the section heads use, at footnote size. It dresses the running head,
   % the first-page date, and the folio, exactly the three things acmart sets
   % in it. The rights line keeps the serif, as acmart's journal line does.
   \def\pk@headfootfont{\sffamily\footnotesize}
+
+  % The wordmark takes the head font rather than a size of its own, so it
+  % matches the title opposite it at either body size -- 9pt on Letter, 8pt
+  % under acmtrim -- and it stays on the ordinary baseline, so the two sides
+  % of the head sit on one line. Only the mark is \vcenter'd, which centres it
+  % on that baseline and keeps a tall image from shifting the head. \vcenter
+  % needs math mode, hence the $...$. The ink is never the rule colour.
+  \newcommand{\pk@lockup}{%
+    \begingroup
+      \color{pkbrandink}\pk@headfootfont
+      \ifx\pk@brandfile\@empty\else
+        $\vcenter{\hbox{\includegraphics[height=\pk@brandheight]{\pk@brandfile}}}$%
+      \fi
+      \ifx\pk@brandtext\@empty\else
+        \ifx\pk@brandfile\@empty\else\hskip 5\p@\fi
+        \pk@brandtext
+      \fi
+    \endgroup
+  }
 
   % acmsmall's alternation. Either side falls back to the other, so a paper
   % that sets only \paperrunningtitle still gets a head on every page.
