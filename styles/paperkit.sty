@@ -322,9 +322,9 @@
   \renewenvironment{abstract}{\vskip 6\p@\par\noindent\ignorespaces}%
                              {\par\vskip 6\p@}
 
-  % Native (nopanel) title block, left aligned like acmsmall's.
-  \ifpk@acmtrim\def\pk@nativetitlesize{\fontsize{17}{21}}%
-  \else\def\pk@nativetitlesize{\fontsize{19}{23}}\fi
+  % Native (nopanel) title block, left aligned like acmsmall's, at acmart's
+  % own \LARGE for both page sizes.
+  \def\pk@nativetitlesize{\fontsize{17}{21}}
   \renewcommand{\@maketitle}{%
     \null
     \begin{flushleft}%
@@ -413,16 +413,15 @@
 \newcommand{\paperpanelcolor}[1]{\definecolor{pkpanelbg}{HTML}{#1}}
 \def\pk@titlesize{19}\def\pk@titleskip{23}
 \let\pk@footerfont\@empty
-% arxiv1col scales the panel title with its body size, and drops the footer a
-% size to keep the correspondence line beside the logos rather than under them.
+% arxiv1col takes acmart's title size and drops the footer a size to keep the
+% correspondence line beside the logos rather than under them.
+%
+% acmart sets the acmsmall title with \LARGE, which is \@xviipt = 17.28pt in
+% both size10.clo and size11.clo -- the title does not scale with the body, so
+% both pages get the same 17pt whether the body is acmtrim's 10pt or the
+% Letter page's 11pt.
 \ifpk@onecol
-  % Both pages set the title at ~1.7 times the body, acmsmall's own ratio:
-  % 17pt over acmtrim's 10pt body, 19pt over the Letter page's 11pt.
-  \ifpk@acmtrim
-    \def\pk@titlesize{17}\def\pk@titleskip{21}
-  \else
-    \def\pk@titlesize{19}\def\pk@titleskip{23}
-  \fi
+  \def\pk@titlesize{17}\def\pk@titleskip{21}
   \let\pk@footerfont\small
 \fi
 \newcommand{\papertitlesize}[2]{\def\pk@titlesize{#1}\def\pk@titleskip{#2}}

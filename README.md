@@ -113,7 +113,7 @@ same fraction of the sheet:
 | Bottom | 44 pt = 0.0609 h | 48.4 pt = **0.0609 h** | 44 pt |
 | `\textwidth` | 395.82 pt = 0.8114 w | 498.44 pt = **0.8114 w** | 395.82 pt |
 | Text | Libertine 10/12 | Libertine 11/13.6 | Libertine 10/12 |
-| Title | 17 pt | 19 pt | 17 pt |
+| Title | 17 pt (`\LARGE`) | 17 pt (`\LARGE`) | 17 pt (`\LARGE`) |
 | Characters per line | 97 | 109 | 97 |
 
 The type size is the part that cannot be copied across. Holding the margin
@@ -130,8 +130,9 @@ acmsmall is a journal format tuned for page economy, and 97 characters is well
 past the 45-75 that typographic convention recommends. If you want the shorter
 line rather than the familiar page, `acmtrim` gives you acmsmall exactly.
 
-The title follows the body at acmsmall's own ratio of roughly 1.7x: 19 pt over
-the Letter page's 11 pt body, 17 pt over acmtrim's 10 pt.
+The title does not scale with the body. `acmart` sets the acmsmall title with
+`\LARGE`, which is `\@xviipt` = 17.28 pt in both `size10.clo` and `size11.clo`,
+so both pages carry the same 17 pt title whichever body size they use.
 
 Everything else -- Biolinum sans headings flush left, run-in italic
 subsubsection and paragraph heads with a closing period, `newtxmath` on
