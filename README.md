@@ -118,7 +118,16 @@ scale, run-in headings -- is `acmart`'s.
 ```bash
 make arxiv1col                  # -> main.pdf and build/main-arxiv1col.pdf
 make OPTS=nopanel arxiv1col     # plain left-aligned title block instead
+make example                    # -> examples/arxiv1col-demo.pdf
 ```
+
+![arxiv1col output](docs/preview-arxiv1col.png)
+
+`examples/arxiv1col-demo.tex` is a two-page paper that exercises the whole
+layout -- all four heading levels, run-in heads, math, a theorem, a table, a
+figure, a listing, and citations -- so you can see what the style does to real
+material before committing to it. It reads `styles/` and `references.bib` from
+the repository root, so compile it from `examples/` (or run `make example`).
 
 Fonts come from `libertine`, `newtx`, and `inconsolata`, all stock TeX Live and
 all available on Overleaf. If they are missing the package warns once and falls
@@ -212,6 +221,7 @@ main.tex            your paper: front matter + \input list
 sections/           abstract.tex, introduction.tex, appendix.tex
 references.bib      bibliography
 figures/            put figures here; ships a placeholder logo + its TikZ source
+examples/           arxiv1col-demo.tex, the one-column layout exercised in full
 styles/paperkit.sty the package
 styles/icml2026.sty, neurips_2026.sty, neurips_2025.sty, icml2026.bst
 Makefile            make arxiv | arxiv1col | icml | neurips | plain, FINAL=1 for camera-ready

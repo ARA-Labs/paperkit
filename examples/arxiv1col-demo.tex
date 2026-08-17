@@ -1,0 +1,153 @@
+% ---------------------------------------------------------------------------
+% arxiv1col demo -- a one-page paper that exercises everything the acmsmall
+% layout touches: headings at all four levels, run-in heads, math, theorems,
+% a table, a figure, a listing, and citations.
+%
+% Build it from this directory:
+%   pdflatex arxiv1col-demo && bibtex arxiv1col-demo && pdflatex arxiv1col-demo
+% or from the repository root:
+%   make example
+% ---------------------------------------------------------------------------
+\documentclass{article}
+
+% The style files live one level up, so tell paperkit where to look before
+% loading it. (arxiv1col loads no venue .sty, but keep this correct anyway.)
+\def\pkstyledir{../styles/}
+\usepackage[arxiv1col]{../styles/paperkit}
+
+\newcommand{\method}{\textsc{Paperkit}}
+
+\papertitle[Paperkit arxiv1col: a one-column preprint in the acmsmall manner]{%
+  A One-Column Preprint\\
+  in the acmsmall Manner%
+}
+
+\paperauthors{%
+  First Author\textsuperscript{1,\,*},\ %
+  Second Author\textsuperscript{2}%
+}
+\paperaffiliations{%
+  \textsuperscript{1}Your University,\ %
+  \textsuperscript{2}Your Lab%
+}
+\papernote{\textsuperscript{*}Equal contribution.}
+
+\paperabstract{%
+  This demo is the \texttt{arxiv1col} venue talking about itself. The body is
+  Linux Libertine at ten point on twelve point leading, the headings are
+  Biolinum sans, the measure is five and a half inches, and the paragraph
+  indent is ten points with no glue between paragraphs -- the settings
+  \texttt{acmart} uses for \texttt{acmsmall}, on a US Letter page. Everything
+  below exists to show what those settings do to real material.%
+}
+
+\papercorrespondence{First Author (\href{mailto:you@example.edu}{you@example.edu})}
+\papercode{\href{https://github.com/you/your-repo}{github.com/you/your-repo}}
+\paperlogo{}{../figures/ara-logo.png}
+\paperlogoheight{20pt}
+
+\begin{document}
+
+\makepaperheader
+
+\section{Headings and body text}
+\label{sec:headings}
+
+A section head is Biolinum sans bold at the body size, set flush left, with
+three quarters of a line above it and a quarter of a line below. That is
+tighter than the \texttt{article} default, and it is what keeps an acmsmall
+page dense without feeling crowded.
+
+This second paragraph starts with a ten point indent and no vertical glue,
+which is how \texttt{acmart} separates paragraphs. The measure is 5.5 inches,
+so a line holds roughly eighty characters -- long enough to keep the page from
+looking ragged, short enough to stay comfortable to read.
+
+\subsection{A subsection}
+\label{sec:sub}
+
+Subsection heads take the same font and the same spacing as section heads; only
+the number tells them apart. Cross-references behave as usual:
+Section~\ref{sec:headings} is above this one, and Table~\ref{tab:levels} lists
+every level.
+
+\subsubsection{A subsubsection}
+The third level runs into the text, set in Biolinum italic and closed with a
+period that paperkit adds for you. Write the title without the period; the
+style supplies it.
+
+\paragraph{A paragraph head} The fourth level runs in as well, in Libertine
+italic and indented to the paragraph indent. It takes its own closing period
+the same way.
+
+\section{Material that stresses the layout}
+
+\subsection{Math}
+
+Inline math sits on the Libertine baseline through \texttt{newtxmath}, so
+$\alpha, \beta, \sum_{i=1}^{n} x_i$ and $\mathcal{L}(\theta)$ keep the colour of
+the surrounding text rather than jumping to Computer Modern:
+\begin{equation}
+  \label{eq:softmax}
+  \mathrm{Attention}(Q, K, V)
+    = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V .
+\end{equation}
+
+\begin{theorem}[Measure and leading]
+  \label{thm:measure}
+  A ten point face set on twelve point leading across a 5.5 inch measure yields
+  a line long enough to justify without visible rivers.
+\end{theorem}
+
+\begin{proof}
+  Left to the reader, who is looking at the evidence.
+\end{proof}
+
+\subsection{Tables and figures}
+
+Captions are set small with a bold label and a colon, and floats keep the full
+measure. Table~\ref{tab:levels} summarises the heading levels; the marks come
+from \verb|\cmark| and \verb|\xmark|.
+
+\begin{table}[htb]
+  \centering
+  \small
+  \begin{tabular}{llcc}
+    \toprule
+    Level & Font & Run-in & Numbered \\
+    \midrule
+    \texttt{\textbackslash section}       & Biolinum bold   & \xmark & \cmark \\
+    \texttt{\textbackslash subsection}    & Biolinum bold   & \xmark & \cmark \\
+    \texttt{\textbackslash subsubsection} & Biolinum italic & \cmark & \cmark \\
+    \texttt{\textbackslash paragraph}     & Libertine italic & \cmark & \xmark \\
+    \bottomrule
+  \end{tabular}
+  \caption{How \texttt{arxiv1col} sets each heading level, following
+  \texttt{acmart}'s \texttt{acmsmall}.}
+  \label{tab:levels}
+\end{table}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[height=42pt]{../figures/ara-logo.png}
+  \caption{A figure at full measure. Vector art stays crisp at any size; this
+  one is a raster placeholder shipped with the template.}
+  \label{fig:logo}
+\end{figure}
+
+\subsection{Code and citations}
+
+Listings use Inconsolata, the mono face acmsmall pairs with Libertine:
+
+\begin{lstlisting}[language=bash]
+make arxiv1col                # one-column preprint
+make OPTS=nopanel arxiv1col   # plain title block instead of the panel
+\end{lstlisting}
+
+Citations go through natbib in every venue mode, both parenthetical
+\citep{vaswani2017attention} and textual \citet{kingma2015adam}.
+
+\bibliographystyle{plainnat}
+\bibliography{../references}
+
+\end{document}

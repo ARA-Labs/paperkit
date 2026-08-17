@@ -5,6 +5,7 @@
 #   make neurips    # NeurIPS submission (anonymous)
 #   make icml       # ICML submission (anonymous)
 #   make plain      # plain article, no venue style
+#   make example    # examples/arxiv1col-demo.pdf, the acmsmall layout in use
 #   make FINAL=1 neurips     # camera-ready / de-anonymized
 #   make clean      # remove build artifacts
 #
@@ -35,7 +36,8 @@ else
   PKOPTS = \PassOptionsToPackage{$(ALLOPTS)}{styles/paperkit}
 endif
 
-.PHONY: all arxiv arxiv1col icml neurips neurips2025 plain build test clean distclean
+.PHONY: all arxiv arxiv1col icml neurips neurips2025 plain build example test \
+        clean distclean
 
 all: arxiv
 
@@ -51,6 +53,17 @@ build:
 	@cp $(MAIN).pdf build/$(MAIN)-$(VENUE).pdf
 	@echo "==> $(MAIN).pdf (venue: $(VENUE)) and build/$(MAIN)-$(VENUE).pdf"
 
+# The demo paper for the one-column venue. It reads styles/ and references.bib
+# from the repository root, so it has to be compiled from its own directory.
+EXAMPLE = arxiv1col-demo
+
+example:
+	cd examples && $(LATEX) $(EXAMPLE).tex \
+	  && $(BIBTEX) $(EXAMPLE) \
+	  && $(LATEX) $(EXAMPLE).tex \
+	  && $(LATEX) $(EXAMPLE).tex
+	@echo "==> examples/$(EXAMPLE).pdf"
+
 test:
 	./tests/test-paperkit.sh
 
@@ -58,7 +71,9 @@ clean:
 	rm -f $(MAIN).aux $(MAIN).log $(MAIN).out $(MAIN).bbl $(MAIN).blg \
 	      $(MAIN).fls $(MAIN).fdb_latexmk $(MAIN).synctex.gz $(MAIN).toc \
 	      $(MAIN).brf $(MAIN).nav $(MAIN).snm $(MAIN).vrb
+	rm -f examples/$(EXAMPLE).aux examples/$(EXAMPLE).log examples/$(EXAMPLE).out \
+	      examples/$(EXAMPLE).bbl examples/$(EXAMPLE).blg examples/$(EXAMPLE).brf
 
 distclean: clean
-	rm -f $(MAIN).pdf
+	rm -f $(MAIN).pdf examples/$(EXAMPLE).pdf
 	rm -rf build
