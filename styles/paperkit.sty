@@ -478,7 +478,12 @@
   enlarge right by=0pt,
 }
 
+% Both of these live out here, not inside the venue conditionals that use
+% them: a \newif inside a branch TeX may skip leaves the \ifpk@... token
+% undefined while skipping, so its \fi is counted without the \if that opened
+% it and the skip ends one \fi early.
 \newif\ifpk@footer
+\newif\ifpk@firstfoot
 \newcommand{\pk@footerrow}{%
   \pk@footerfalse
   \ifx\pk@corr\@empty\else\pk@footertrue\fi
@@ -513,35 +518,53 @@
   \pk@extralogos
 }
 
+% arxiv1col centres the title block the way the one-column preprints it is
+% modelled on do, and justifies the abstract under it. The two-column panel
+% keeps the flush-left block and ragged abstract it has always had.
+\newif\ifpk@panelcenter \pk@panelcenterfalse
+\ifpk@onecol\pk@panelcentertrue\fi
+% \paperheadalign{center} or {left}
+\def\pk@centerword{center}
+\newcommand{\paperheadalign}[1]{%
+  \def\pk@alignarg{#1}%
+  \ifx\pk@alignarg\pk@centerword\pk@panelcentertrue\else\pk@panelcenterfalse\fi}
+
 \newcommand{\pk@panelbody}{%
   \begin{pk@panelbox}
-    \raggedright
-    {\sffamily\bfseries\fontsize{\pk@titlesize}{\pk@titleskip}\selectfont
-      \pk@title\par}
-    \ifpk@anon
-      \vskip 12pt
-      {\sffamily\bfseries\normalsize Anonymous Authors\par}
-      \vskip 4pt
-      {\small Paper under double-blind review\par}
-    \else
-      \ifx\pk@authors\@empty\else
+    % The title block, centred or flush left. Each piece closes its own \par
+    % inside the group, so the alignment reaches the last line of each.
+    \begingroup
+      \ifpk@panelcenter\centering\else\raggedright\fi
+      {\sffamily\bfseries\fontsize{\pk@titlesize}{\pk@titleskip}\selectfont
+        \pk@title\par}
+      \ifpk@anon
         \vskip 12pt
-        {\sffamily\bfseries\normalsize \pk@authors\par}
-      \fi
-      \ifx\pk@affils\@empty\else
-        \vskip 6pt
-        {\small \pk@affils\par}
-      \fi
-      \ifx\pk@note\@empty\else
+        {\sffamily\bfseries\normalsize Anonymous Authors\par}
         \vskip 4pt
-        {\small \pk@note\par}
+        {\small Paper under double-blind review\par}
+      \else
+        \ifx\pk@authors\@empty\else
+          \vskip 12pt
+          {\sffamily\bfseries\normalsize \pk@authors\par}
+        \fi
+        \ifx\pk@affils\@empty\else
+          \vskip 6pt
+          {\small \pk@affils\par}
+        \fi
+        \ifx\pk@note\@empty\else
+          \vskip 4pt
+          {\small \pk@note\par}
+        \fi
       \fi
-    \fi
+    \endgroup
     \ifx\pk@abstract\@empty\else
       \vskip 14pt
-      \pk@abstract
+      \ifpk@panelcenter\else\raggedright\fi
+      \pk@abstract\par
     \fi
-    \ifpk@anon\else\pk@footerrow\fi
+    % arxiv1col moves correspondence and code to the foot of the first page,
+    % so the panel ends at the abstract and the mark is left to the head.
+    \ifpk@onecol\else\ifpk@anon\else\pk@footerrow\fi\fi
   \end{pk@panelbox}%
 }
 
@@ -659,12 +682,36 @@
     \ifx\pk@copyright\@empty\else{\footnotesize\pk@copyright}\fi}
   \newcommand{\pk@foot@right}{{\pk@headfootfont\thepage}}
 
+  % Correspondence and code go to the foot of the first page, where acmsmall
+  % puts its author addresses, instead of riding under the abstract. Set in a
+  % \parbox so a long address wraps instead of running into the folio; the
+  % measure stops short of it. Two lines clear the bottom margin, a third
+  % would not, so the rights line only joins them if it is short.
+  \newcommand{\pk@firstfoot@left}{%
+    \pk@firstfootfalse
+    \ifx\pk@corr\@empty\else\pk@firstfoottrue\fi
+    \ifx\pk@code\@empty\else\pk@firstfoottrue\fi
+    \ifx\pk@copyright\@empty\else\pk@firstfoottrue\fi
+    \ifpk@firstfoot
+      \parbox[t]{.86\headwidth}{%
+        \footnotesize\raggedright
+        \ifx\pk@corr\@empty\else
+          \textbf{Correspondence:}\ \pk@corr\par
+        \fi
+        \ifx\pk@code\@empty\else
+          \textbf{Code:}\ \pk@code\par
+        \fi
+        \ifx\pk@copyright\@empty\else\pk@copyright\par\fi
+      }%
+    \fi
+  }
+
   % Page 1: lockup against the date.
   \fancypagestyle{pkfirst}{%
     \fancyhf{}%
     \fancyhead[L]{\pk@lockup}%
     \fancyhead[R]{\ifx\pk@date\@empty\else{\pk@headfootfont\pk@date}\fi}%
-    \fancyfoot[L]{\pk@foot@left}%
+    \fancyfoot[L]{\pk@firstfoot@left}%
     \fancyfoot[R]{\pk@foot@right}%
   }
   % Page 2 on: lockup against the alternating title / author list.

@@ -175,8 +175,26 @@ side falls back to the other when only one is set, and the short title falls
 back to the plain-text title from `\papertitle`, so the head is never blank.
 
 Neither end carries a rule, as in acmart -- both `standardpagestyle` and
-`firstpagestyle` zero the two widths. The foot is the page number alone, unless
-`\papercopyright` is set.
+`firstpagestyle` zero the two widths.
+
+The foot of the first page carries `\papercorrespondence` and `\papercode`,
+where acmsmall puts its author addresses, rather than running them under the
+abstract. They wrap inside a measure that stops short of the folio. Later pages
+show the page number alone, unless `\papercopyright` is set.
+
+### The title block
+
+`arxiv1col` centres the title, authors, affiliations, and note, and justifies
+the abstract beneath them -- the arrangement the one-column preprints this
+venue is modelled on use. The panel ends at the abstract; there is no footer
+row, since the emails are at the foot of the page and the brand is in the head.
+
+The two-column `arxiv` panel is unchanged: flush left, ragged abstract, and the
+correspondence, code, and logos in its footer. Override either with:
+
+```latex
+\paperheadalign{center}   % or {left}
+```
 
 Left unset, `\paperbrand` borrows whatever `\paperlogo` already holds. The
 colours come from the ARA mark and are overridable:
@@ -246,6 +264,11 @@ wordmark plus any number of logos on the right, all vertically centered:
 \addpaperlogo{figures/university.pdf}
 \addpaperlogo[22pt]{figures/company.pdf}    % optional per-logo height
 ```
+
+`arxiv1col` has no panel footer: it moves correspondence and code to the foot
+of the first page and leaves the brand to the running-head lockup, so
+`\paperlogo` and `\addpaperlogo` do nothing there. Everything else uses the
+footer as described.
 
 Drop the wordmark with `\paperlogo{}{...}`, or the image with
 `\paperlogo{Your Lab}{}`. Vector logos (PDF, EPS) stay crisp at any size; PNG
