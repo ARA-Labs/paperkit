@@ -33,11 +33,13 @@
 \papernote{\textsuperscript{*}Equal contribution.}
 
 \paperabstract{%
-  This demo is the \texttt{arxiv1col} venue talking about itself. The body is
-  Linux Libertine at ten point on twelve point leading, the headings are
-  Biolinum sans, the measure is five and a half inches, and the paragraph
-  indent is ten points with no glue between paragraphs -- the settings
-  \texttt{acmart} uses for \texttt{acmsmall}, on a US Letter page. Everything
+  This demo is the \texttt{arxiv1col} venue talking about itself. It is
+  \texttt{acmart}'s \texttt{acmsmall} page scaled by \(8.5/6.75 = 1.26\) to fit
+  US Letter: Linux Libertine at twelve point on fourteen and a half point
+  leading, Biolinum sans headings, a six inch measure, and a one em paragraph
+  indent with no glue between paragraphs. Scaling the type along with the sheet
+  is what keeps the proportions; holding acmsmall's ten point type would have
+  left its 5.48 inch measure stranded inside three inches of margin. Everything
   below exists to show what those settings do to real material.%
 }
 
@@ -58,10 +60,12 @@ three quarters of a line above it and a quarter of a line below. That is
 tighter than the \texttt{article} default, and it is what keeps an acmsmall
 page dense without feeling crowded.
 
-This second paragraph starts with a ten point indent and no vertical glue,
-which is how \texttt{acmart} separates paragraphs. The measure is 5.5 inches,
-so a line holds roughly eighty characters -- long enough to keep the page from
-looking ragged, short enough to stay comfortable to read.
+This second paragraph starts with a one em indent and no vertical glue, which
+is how \texttt{acmart} separates paragraphs. The measure is six inches at
+twelve point, so a line holds about the same number of characters as an
+acmsmall line does at ten point across 5.48 inches -- the ratio that matters
+for reading is measure over type size, and scaling both by 1.26 leaves it
+where ACM put it.
 
 \subsection{A subsection}
 \label{sec:sub}
@@ -95,8 +99,8 @@ the surrounding text rather than jumping to Computer Modern:
 
 \begin{theorem}[Measure and leading]
   \label{thm:measure}
-  A ten point face set on twelve point leading across a 5.5 inch measure yields
-  a line long enough to justify without visible rivers.
+  Scaling face, leading, and measure by a common factor leaves characters per
+  line unchanged, so a page keeps its colour at any trim size.
 \end{theorem}
 
 \begin{proof}

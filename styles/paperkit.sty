@@ -172,11 +172,23 @@
 % arxiv1col has no venue .sty of its own: it is a plain one-column article that
 % paperkit lays out in the acmsmall manner further down.
 \ifpk@onecol
+  % acmsmall, scaled up to fit Letter. Letter is 8.5in wide against
+  % acmsmall's 6.75in trim, so the whole page -- type included -- is scaled by
+  % 8.5/6.75 = 1.26 and the proportions survive the bigger sheet. Keeping
+  % acmsmall's 10pt type instead would hold its 5.48in measure and dump all
+  % 1.75in of extra width into the margins, which is not what an acmsmall page
+  % looks like: there the side margins (46pt) are smaller than the top margin
+  % (58pt), not larger.
+  %
+  % main.tex says \documentclass{article} for every venue, so the body size
+  % cannot come from a class option; LaTeX's own 12pt definitions are pulled
+  % in here instead.
+  \input{size12.clo}\normalsize
   % geometry before hyperref, so hyperref sees the final page size.
   \RequirePackage{geometry}
   \geometry{letterpaper,
-    left=1.5in, right=1.5in, top=1.2in, bottom=1.2in,
-    includefoot, footskip=26pt, heightrounded}
+    left=1.25in, right=1.25in, top=1.2in, bottom=1.2in,
+    includefoot, footskip=28pt, heightrounded}
   \pk@loadhyperref
   \ifpk@natbib
     \@ifpackageloaded{natbib}{}{\RequirePackage[numbers]{natbib}}
@@ -250,8 +262,8 @@
     }%
   \fi
 
-  % acmsmall paragraphing: a small indent and no inter-paragraph glue.
-  \setlength{\parindent}{10\p@}
+  % acmsmall paragraphing: a one-em indent and no inter-paragraph glue.
+  \setlength{\parindent}{12\p@}
   \setlength{\parskip}{\z@}
 
   % Headings: sans bold, flush left, tight above and below; subsubsection and
@@ -289,7 +301,7 @@
   \renewcommand{\@maketitle}{%
     \null
     \begin{flushleft}%
-      {\sffamily\bfseries\fontsize{17}{21}\selectfont\@title\par}%
+      {\sffamily\bfseries\fontsize{21}{25}\selectfont\@title\par}%
       \ifx\@author\@empty\else\vskip 12\p@{\@author\par}\fi
       \ifx\@date\@empty\else\vskip 6\p@{\small\@date\par}\fi
     \end{flushleft}%
@@ -373,6 +385,13 @@
 \definecolor{pkpanelbg}{HTML}{EEF3F9}
 \newcommand{\paperpanelcolor}[1]{\definecolor{pkpanelbg}{HTML}{#1}}
 \def\pk@titlesize{19}\def\pk@titleskip{23}
+\let\pk@footerfont\@empty
+% arxiv1col sets a 12pt body: the panel title scales with it, and the footer
+% drops a size so the correspondence line still fits beside the logos.
+\ifpk@onecol
+  \def\pk@titlesize{23}\def\pk@titleskip{27}
+  \let\pk@footerfont\small
+\fi
 \newcommand{\papertitlesize}[2]{\def\pk@titlesize{#1}\def\pk@titleskip{#2}}
 \def\pk@panelarc{8pt}
 \newcommand{\paperpanelarc}[1]{\def\pk@panelarc{#1}}
@@ -406,10 +425,13 @@
 }
 % \parbox, not minipage: the optional argument of \begin{minipage}[c]{..} is
 % mis-parsed inside \twocolumn[...] for the same `]' reason as above.
+% The correspondence line is long and the box is narrow, so set it ragged
+% right: justifying it stretches the interword spaces into gaps.
 \newcommand{\pk@footerrow@}{%
   \vskip 14pt
   \noindent
   \parbox{0.62\linewidth}{%
+    \raggedright\pk@footerfont
     \ifx\pk@corr\@empty\else
       \noindent\textbf{Correspondence:}\ \pk@corr\par\vskip 2pt
     \fi

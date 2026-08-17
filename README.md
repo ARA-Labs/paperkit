@@ -100,20 +100,31 @@ package loads:
 `arxiv1col` is the two-column `arxiv` mode's quieter sibling: same front matter,
 same panel, but a single column set the way ACM's `acmart` sets `acmsmall`.
 
+It is the acmsmall page scaled to fit Letter. Letter is 8.5 in wide against
+acmsmall's 6.75 in trim, so everything -- type included -- is multiplied by
+8.5 / 6.75 = 1.26:
+
 | | `acmsmall` | paperkit `arxiv1col` |
 | --- | --- | --- |
-| Page | 6.75 x 10 in trim | US Letter, 1.5 in side margins |
-| Measure | 5.48 in | 5.5 in |
-| Text | Linux Libertine 10/12 | same |
+| Page | 6.75 x 10 in trim | US Letter |
+| Side margins | 46 pt (0.64 in) | 1.25 in |
+| Measure | 5.48 in | 6 in |
+| Text | Linux Libertine 10/12 | Linux Libertine 12/14.5 |
 | Headings | Biolinum sans bold, flush left | same |
 | Subsubsection / paragraph | run-in italic, closing period | same |
 | Math | `newtxmath` with Libertine letters | same |
 | Mono | Inconsolata (`zi4`) | same |
-| Paragraphs | 10 pt indent, no `parskip` | same |
+| Paragraphs | 1 em indent, no `parskip` | same |
 
-The page is Letter rather than acmsmall's small trim so the PDF prints and reads
-on screen like every other preprint. Everything else -- fonts, measure, heading
-scale, run-in headings -- is `acmart`'s.
+Scaling the type along with the sheet is the whole point. Keeping acmsmall's
+10 pt body would hold its 5.48 in measure and push all 1.75 in of extra Letter
+width into the margins -- and an acmsmall page has side margins *smaller* than
+its top margin (46 pt against 58 pt), not larger. Characters per line, the
+number that actually governs reading, comes out where ACM put it.
+
+`main.tex` says `\documentclass{article}` for every venue, so the 12 pt body
+comes from the package rather than a class option; you do not have to change
+anything to switch between venues.
 
 ```bash
 make arxiv1col                  # -> main.pdf and build/main-arxiv1col.pdf
