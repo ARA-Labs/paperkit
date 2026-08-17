@@ -192,13 +192,16 @@
     % 0.8114 of the sheet, exactly as acmart does.
     %
     % Those fractions give a 6.9in measure, 1.26 times acmsmall's, so the type
-    % has to grow with it: at 10pt a line would run ~95 characters against
-    % acmsmall's ~75. At 12pt it runs ~79, and the page reads at acmsmall's
-    % density. main.tex says \documentclass{article} for every venue, so the
-    % body size cannot come from a class option; LaTeX's own 12pt definitions
-    % are pulled in here instead, before geometry, which needs the final
-    % \baselineskip to round \textheight against.
-    \input{size12.clo}\normalsize
+    % has to grow with it. Measured over an 8k-character sample, a line runs
+    % 122 characters at 10pt, 109 at 11pt and 101 at 12pt, against acmsmall's
+    % own 97. 12pt is the size that matches acmsmall's density, but it sets a
+    % preprint in type noticeably larger than the 10-11pt readers expect; 11pt
+    % takes ~12% more characters per line in exchange for a conventional page.
+    % main.tex says \documentclass{article} for every venue, so the body size
+    % cannot come from a class option; LaTeX's own 11pt definitions are pulled
+    % in here instead, before geometry, which needs the final \baselineskip to
+    % round \textheight against. size11.clo brings LaTeX's own 13.6pt leading.
+    \input{size11.clo}\normalsize
     \RequirePackage{geometry}
     \geometry{letterpaper,
       left=57.93pt, right=57.93pt, top=63.8pt, bottom=48.4pt,
@@ -261,8 +264,10 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% one-column arXiv %%
 % Fonts and layout for the `arxiv1col' venue: acmart's acmsmall settings --
-% Libertine text on 10pt/12pt, Biolinum headings, tight run-in subsubsections,
-% a 10pt paragraph indent. The page geometry is set with the venue above; this
+% Libertine text (10/12 in acmsmall, 11/13.6 on the wider Letter page above),
+% Biolinum headings, tight run-in subsubsections, a one-em paragraph indent
+% that follows the body size. The page geometry is set with the venue above;
+% this
 % block comes after the common packages on purpose, because libertine has to
 % win over helvet for \sfdefault.
 \ifpk@onecol
@@ -282,7 +287,7 @@
   \ifpk@acmtrim
     \setlength{\parindent}{10\p@}
   \else
-    \setlength{\parindent}{12\p@}
+    \setlength{\parindent}{11\p@}
   \fi
   \setlength{\parskip}{\z@}
 
@@ -319,7 +324,7 @@
 
   % Native (nopanel) title block, left aligned like acmsmall's.
   \ifpk@acmtrim\def\pk@nativetitlesize{\fontsize{17}{21}}%
-  \else\def\pk@nativetitlesize{\fontsize{21}{25}}\fi
+  \else\def\pk@nativetitlesize{\fontsize{19}{23}}\fi
   \renewcommand{\@maketitle}{%
     \null
     \begin{flushleft}%
@@ -411,10 +416,12 @@
 % arxiv1col scales the panel title with its body size, and drops the footer a
 % size to keep the correspondence line beside the logos rather than under them.
 \ifpk@onecol
+  % Both pages set the title at ~1.7 times the body, acmsmall's own ratio:
+  % 17pt over acmtrim's 10pt body, 19pt over the Letter page's 11pt.
   \ifpk@acmtrim
     \def\pk@titlesize{17}\def\pk@titleskip{21}
   \else
-    \def\pk@titlesize{23}\def\pk@titleskip{27}
+    \def\pk@titlesize{19}\def\pk@titleskip{23}
   \fi
   \let\pk@footerfont\small
 \fi

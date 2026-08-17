@@ -112,15 +112,26 @@ same fraction of the sheet:
 | Top | 58 pt = 0.0803 h | 63.8 pt = **0.0803 h** | 58 pt |
 | Bottom | 44 pt = 0.0609 h | 48.4 pt = **0.0609 h** | 44 pt |
 | `\textwidth` | 395.82 pt = 0.8114 w | 498.44 pt = **0.8114 w** | 395.82 pt |
-| Text | Libertine 10/12 | Libertine 12/14.5 | Libertine 10/12 |
-| Characters per line | ~75 | ~79 | ~75 |
+| Text | Libertine 10/12 | Libertine 11/13.6 | Libertine 10/12 |
+| Title | 17 pt | 19 pt | 17 pt |
+| Characters per line | 97 | 109 | 97 |
 
 The type size is the part that cannot be copied across. Holding the margin
-ratios on a sheet 1.26 times wider gives a 6.9 in measure, and a 10 pt line
-across 6.9 in runs about 95 characters -- far past acmsmall's ~75 and past the
-range that reads comfortably. Scaling the body to 12 pt brings it back to ~79.
-What governs a line is measure over type size, not measure alone, so the two
-have to move together.
+ratios on a sheet 1.26 times wider gives a 6.9 in measure, and what governs a
+line is measure over type size, not measure alone, so the two have to move
+together. Measured over an 8k-character sample, that 6.9 in line runs 122
+characters at 10 pt, 109 at 11 pt and 101 at 12 pt, against acmsmall's own 97.
+
+12 pt is therefore the size that matches acmsmall's density exactly, but it
+sets a preprint in type noticeably larger than the 10-11 pt readers expect.
+`arxiv1col` uses 11 pt instead: about 12% more characters per line than
+acmsmall, on a page that reads as a normal preprint. Both are long measures --
+acmsmall is a journal format tuned for page economy, and 97 characters is well
+past the 45-75 that typographic convention recommends. If you want the shorter
+line rather than the familiar page, `acmtrim` gives you acmsmall exactly.
+
+The title follows the body at acmsmall's own ratio of roughly 1.7x: 19 pt over
+the Letter page's 11 pt body, 17 pt over acmtrim's 10 pt.
 
 Everything else -- Biolinum sans headings flush left, run-in italic
 subsubsection and paragraph heads with a closing period, `newtxmath` on
