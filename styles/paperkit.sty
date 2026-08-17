@@ -23,6 +23,8 @@
 %%   nolibertine    arxiv1col only: keep the default fonts instead of Libertine
 %%   acmtrim        arxiv1col only: acmsmall's own 6.75x10in page, 10pt body,
 %%                  instead of Letter with the same margin proportions
+%%   noheader       arxiv1col only: drop the branded running head and foot and
+%%                  fall back to the article default page number
 %%
 %% The venue can also be set from the command line without editing main.tex:
 %%   pdflatex "\def\pkvenue{neurips}\input{main.tex}"
@@ -48,6 +50,7 @@
 \newif\ifpk@natbib     \pk@natbibtrue
 \newif\ifpk@libertine  \pk@libertinetrue
 \newif\ifpk@acmtrim    \pk@acmtrimfalse
+\newif\ifpk@header     \pk@headertrue
 
 \DeclareOption{arxiv}{\def\pk@venue{arxiv}}
 \DeclareOption{arxiv1col}{\def\pk@venue{arxiv1col}}
@@ -65,6 +68,7 @@
 \DeclareOption{nonatbib}{\pk@natbibfalse}
 \DeclareOption{nolibertine}{\pk@libertinefalse}
 \DeclareOption{acmtrim}{\pk@acmtrimtrue}
+\DeclareOption{noheader}{\pk@headerfalse}
 \DeclareOption*{\PackageWarning{paperkit}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
@@ -384,6 +388,16 @@
 \let\pk@logotext\@empty
 \let\pk@logofile\@empty
 \let\pk@extralogos\@empty
+\let\pk@shorttitle\@empty
+\let\pk@shortauthors\@empty
+\let\pk@copyright\@empty
+% Empty by default, as in acmart: the first-page head keeps that corner for an
+% optional badge and carries no date. \paperdate{...} opts one in.
+\let\pk@date\@empty
+\let\pk@brandtext\@empty
+\let\pk@brandfile\@empty
+\def\pk@brandheight{11pt}
+\newif\ifpk@brandset \pk@brandsetfalse
 
 % \papertitle[<plain text for PDF metadata>]{<typeset title, \\ allowed>}
 \newcommand{\papertitle}[2][]{%
@@ -391,8 +405,19 @@
   \def\pk@tmp{#1}%
   \ifx\pk@tmp\@empty\gdef\pk@pdftitle{#2}\else\gdef\pk@pdftitle{#1}\fi
 }
-% Short title for the running header (ICML-based venues only).
-\newcommand{\paperrunningtitle}[1]{\@ifundefined{icmltitlerunning}{}{\icmltitlerunning{#1}}}
+% Short title for the running header: the ICML-based venues take it through
+% \icmltitlerunning, arxiv1col sets it on the recto side of its own head.
+\newcommand{\paperrunningtitle}[1]{%
+  \gdef\pk@shorttitle{#1}%
+  \@ifundefined{icmltitlerunning}{}{\icmltitlerunning{#1}}%
+}
+% Short author list for the verso side of the arxiv1col running head, the way
+% acmsmall uses \shortauthors: `Falck et al.', not the full superscripted list.
+\newcommand{\papershortauthors}[1]{\gdef\pk@shortauthors{#1}}
+% Optional date in the first-page head, opposite the lockup. Off unless set.
+\newcommand{\paperdate}[1]{\gdef\pk@date{#1}}
+% Rights line at the left of the arxiv1col page foot.
+\newcommand{\papercopyright}[1]{\gdef\pk@copyright{#1}}
 \newcommand{\paperauthors}[1]{\gdef\pk@authors{#1}}
 \newcommand{\paperaffiliations}[1]{\gdef\pk@affils{#1}}
 \newcommand{\paperabstract}[1]{\gdef\pk@abstract{#1}}
@@ -401,6 +426,14 @@
 \newcommand{\papercode}[1]{\gdef\pk@code{#1}}
 % \paperlogo{<wordmark text>}{<image file, may be empty>}
 \newcommand{\paperlogo}[2]{\gdef\pk@logotext{#1}\gdef\pk@logofile{#2}}
+% \paperbrand[<mark height>]{<mark image>}{<wordmark text>} -- the horizontal
+% lockup at the left of the arxiv1col running head. Either half may be empty,
+% so a ready-made lockup image goes in as \paperbrand{lockup.pdf}{}. Left
+% unset, the head borrows whatever \paperlogo already carries.
+\newcommand{\paperbrand}[3][11pt]{%
+  \pk@brandsettrue
+  \def\pk@brandheight{#1}\gdef\pk@brandfile{#2}\gdef\pk@brandtext{#3}%
+}
 % \addpaperlogo[<height>]{<image file>} -- extra marks, laid out to the right of
 % the first one. Call it once per logo, in the order they should appear.
 \newcommand{\addpaperlogo}[2][\pk@logoheight]{%
@@ -445,7 +478,12 @@
   enlarge right by=0pt,
 }
 
+% Both of these live out here, not inside the venue conditionals that use
+% them: a \newif inside a branch TeX may skip leaves the \ifpk@... token
+% undefined while skipping, so its \fi is counted without the \if that opened
+% it and the skip ends one \fi early.
 \newif\ifpk@footer
+\newif\ifpk@firstfoot
 \newcommand{\pk@footerrow}{%
   \pk@footerfalse
   \ifx\pk@corr\@empty\else\pk@footertrue\fi
@@ -480,35 +518,56 @@
   \pk@extralogos
 }
 
+% The title block is flush left in every venue, acmsmall's own arrangement and
+% the one the panel has always used. Abstract justification is a separate
+% question, settled by venue below: arxiv1col justifies, the two-column panel
+% keeps the ragged right it has always had.
+\newif\ifpk@panelcenter \pk@panelcenterfalse
+% \paperheadalign{center} or {left}
+\def\pk@centerword{center}
+\newcommand{\paperheadalign}[1]{%
+  \def\pk@alignarg{#1}%
+  \ifx\pk@alignarg\pk@centerword\pk@panelcentertrue\else\pk@panelcenterfalse\fi}
+
 \newcommand{\pk@panelbody}{%
   \begin{pk@panelbox}
-    \raggedright
-    {\sffamily\bfseries\fontsize{\pk@titlesize}{\pk@titleskip}\selectfont
-      \pk@title\par}
-    \ifpk@anon
-      \vskip 12pt
-      {\sffamily\bfseries\normalsize Anonymous Authors\par}
-      \vskip 4pt
-      {\small Paper under double-blind review\par}
-    \else
-      \ifx\pk@authors\@empty\else
+    % The title block, centred or flush left. Each piece closes its own \par
+    % inside the group, so the alignment reaches the last line of each.
+    \begingroup
+      \ifpk@panelcenter\centering\else\raggedright\fi
+      {\sffamily\bfseries\fontsize{\pk@titlesize}{\pk@titleskip}\selectfont
+        \pk@title\par}
+      \ifpk@anon
         \vskip 12pt
-        {\sffamily\bfseries\normalsize \pk@authors\par}
-      \fi
-      \ifx\pk@affils\@empty\else
-        \vskip 6pt
-        {\small \pk@affils\par}
-      \fi
-      \ifx\pk@note\@empty\else
+        {\sffamily\bfseries\normalsize Anonymous Authors\par}
         \vskip 4pt
-        {\small \pk@note\par}
+        {\small Paper under double-blind review\par}
+      \else
+        \ifx\pk@authors\@empty\else
+          \vskip 12pt
+          {\sffamily\bfseries\normalsize \pk@authors\par}
+        \fi
+        \ifx\pk@affils\@empty\else
+          \vskip 6pt
+          {\small \pk@affils\par}
+        \fi
+        \ifx\pk@note\@empty\else
+          \vskip 4pt
+          {\small \pk@note\par}
+        \fi
       \fi
-    \fi
+    \endgroup
+    % Justified under arxiv1col, ragged in the two-column panel. This does not
+    % follow the title alignment: \paperheadalign moves the block above without
+    % disturbing the abstract's setting.
     \ifx\pk@abstract\@empty\else
       \vskip 14pt
-      \pk@abstract
+      \ifpk@onecol\else\raggedright\fi
+      \pk@abstract\par
     \fi
-    \ifpk@anon\else\pk@footerrow\fi
+    % arxiv1col moves correspondence and code to the foot of the first page,
+    % so the panel ends at the abstract and the mark is left to the head.
+    \ifpk@onecol\else\ifpk@anon\else\pk@footerrow\fi\fi
   \end{pk@panelbox}%
 }
 
@@ -553,6 +612,122 @@
   \vskip 0.2in
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% arxiv1col running head and foot %%
+% A branded page furniture for the one-column preprint: the lockup at the left
+% of the head on every page, and opposite it the date on page 1 and then
+% acmsmall's alternation -- short title on the recto, short authors on the
+% verso -- from page 2 on. No rules at either end, as in acmart; the foot
+% carries the page number at the outer edge and nothing else by default.
+
+% The two colours the ARA mark is drawn in.
+\definecolor{pkbrandink}{HTML}{16122D}
+\definecolor{pkbrandaccent}{HTML}{E9A16F}
+% \paperbrandcolor{<ink hex>}{<accent hex>}
+\newcommand{\paperbrandcolor}[2]{%
+  \definecolor{pkbrandink}{HTML}{#1}\definecolor{pkbrandaccent}{HTML}{#2}}
+% pkbrandink dresses the lockup. pkbrandaccent is the square on the mark; the
+% furniture does not use it, but it is here for \textcolor in the body.
+
+\ifpk@onecol\ifpk@header
+  \RequirePackage{fancyhdr}
+
+  % Unset, the lockup falls back to the panel logo. Resolved once the preamble
+  % has run, so \paperlogo and \paperbrand may come in either order.
+  \AtBeginDocument{%
+    \ifpk@brandset\else
+      \let\pk@brandfile\pk@logofile
+      \let\pk@brandtext\pk@logotext
+    \fi
+  }
+
+  % acmart's \@headfootfont, which under Libertine means Biolinum -- the same
+  % sans the section heads use, at footnote size. It dresses the running head,
+  % the first-page date, and the folio, exactly the three things acmart sets
+  % in it. The rights line keeps the serif, as acmart's journal line does.
+  \def\pk@headfootfont{\sffamily\footnotesize}
+
+  % The wordmark takes the head font rather than a size of its own, so it
+  % matches the title opposite it at either body size -- 9pt on Letter, 8pt
+  % under acmtrim -- and it stays on the ordinary baseline, so the two sides
+  % of the head sit on one line. Only the mark is \vcenter'd, which centres it
+  % on that baseline and keeps a tall image from shifting the head. \vcenter
+  % needs math mode, hence the $...$. The ink is never the rule colour.
+  \newcommand{\pk@lockup}{%
+    \begingroup
+      \color{pkbrandink}\pk@headfootfont
+      \ifx\pk@brandfile\@empty\else
+        $\vcenter{\hbox{\includegraphics[height=\pk@brandheight]{\pk@brandfile}}}$%
+      \fi
+      \ifx\pk@brandtext\@empty\else
+        \ifx\pk@brandfile\@empty\else\hskip 5\p@\fi
+        \pk@brandtext
+      \fi
+    \endgroup
+  }
+
+  % acmsmall's alternation. Either side falls back to the other, so a paper
+  % that sets only \paperrunningtitle still gets a head on every page.
+  \newcommand{\pk@head@title}{%
+    \ifx\pk@shorttitle\@empty\pk@pdftitle\else\pk@shorttitle\fi}
+  \newcommand{\pk@head@authors}{%
+    \ifx\pk@shortauthors\@empty\pk@head@title\else\pk@shortauthors\fi}
+  \newcommand{\pk@runninghead}{%
+    \pk@headfootfont
+    \ifodd\value{page}\pk@head@title\else\pk@head@authors\fi}
+
+  % No rules, at either end. acmart draws none in any of its formats -- both
+  % standardpagestyle and firstpagestyle zero the two widths -- and the lockup
+  % and the running title mark the head well enough on their own.
+  \renewcommand{\headrulewidth}{\z@}
+  \renewcommand{\footrulewidth}{\z@}
+
+  \newcommand{\pk@foot@left}{%
+    \ifx\pk@copyright\@empty\else{\footnotesize\pk@copyright}\fi}
+  \newcommand{\pk@foot@right}{{\pk@headfootfont\thepage}}
+
+  % Correspondence and code go to the foot of the first page, where acmsmall
+  % puts its author addresses, instead of riding under the abstract. Set in a
+  % \parbox so a long address wraps instead of running into the folio; the
+  % measure stops short of it. Two lines clear the bottom margin, a third
+  % would not, so the rights line only joins them if it is short.
+  \newcommand{\pk@firstfoot@left}{%
+    \pk@firstfootfalse
+    \ifx\pk@corr\@empty\else\pk@firstfoottrue\fi
+    \ifx\pk@code\@empty\else\pk@firstfoottrue\fi
+    \ifx\pk@copyright\@empty\else\pk@firstfoottrue\fi
+    \ifpk@firstfoot
+      \parbox[t]{.86\headwidth}{%
+        \footnotesize\raggedright
+        \ifx\pk@corr\@empty\else
+          \textbf{Correspondence:}\ \pk@corr\par
+        \fi
+        \ifx\pk@code\@empty\else
+          \textbf{Code:}\ \pk@code\par
+        \fi
+        \ifx\pk@copyright\@empty\else\pk@copyright\par\fi
+      }%
+    \fi
+  }
+
+  % Page 1: lockup against the date.
+  \fancypagestyle{pkfirst}{%
+    \fancyhf{}%
+    \fancyhead[L]{\pk@lockup}%
+    \fancyhead[R]{\ifx\pk@date\@empty\else{\pk@headfootfont\pk@date}\fi}%
+    \fancyfoot[L]{\pk@firstfoot@left}%
+    \fancyfoot[R]{\pk@foot@right}%
+  }
+  % Page 2 on: lockup against the alternating title / author list.
+  \fancypagestyle{pkmain}{%
+    \fancyhf{}%
+    \fancyhead[L]{\pk@lockup}%
+    \fancyhead[R]{\pk@runninghead}%
+    \fancyfoot[L]{\pk@foot@left}%
+    \fancyfoot[R]{\pk@foot@right}%
+  }
+  \AtBeginDocument{\pagestyle{pkmain}}
+\fi\fi
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% render %%
 \newcommand{\makepaperheader}{%
   \ifx\pk@title\@empty
@@ -581,6 +756,9 @@
       \fi
     \fi
   \fi
+  % Last, so it wins over the \thispagestyle{plain} that the panel branch and
+  % \maketitle both issue for the first page.
+  \ifpk@onecol\ifpk@header\thispagestyle{pkfirst}\fi\fi
   \@ifundefined{hypersetup}{}{\hypersetup{pdftitle={\pk@pdftitle}}}%
 }
 \endinput
