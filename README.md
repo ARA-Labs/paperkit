@@ -8,6 +8,7 @@ venue with a single word:
 
 ```latex
 \usepackage[arxiv]{styles/paperkit}     % preprint, two-column, rounded title panel
+\usepackage[arxiv1col]{styles/paperkit} % preprint, one-column, acmsmall look
 \usepackage[neurips]{styles/paperkit}   % NeurIPS 2026 submission (anonymous)
 \usepackage[icml]{styles/paperkit}      % ICML 2026 submission (anonymous)
 \usepackage[plain]{styles/paperkit}     % plain article, no venue style
@@ -21,6 +22,7 @@ else in the document changes.
 ```bash
 cp -r paperkit my-paper && cd my-paper
 make            # arXiv preprint  -> main.pdf
+make arxiv1col  # one-column preprint, acmsmall look
 make neurips    # NeurIPS submission
 make icml       # ICML submission
 make plain      # no venue style
@@ -65,6 +67,7 @@ venue's abstract environment for the submission.
 | Option | Style file | Columns | Anonymous | First page |
 | --- | --- | --- | --- | --- |
 | `arxiv` (default) | `icml2026` + `preprint` | two | no | rounded panel |
+| `arxiv1col` | none (acmsmall settings) | one | no | rounded panel |
 | `icml` | `icml2026` | two | yes (until `final`) | ICML title block |
 | `neurips` | `neurips_2026` | one | yes (until `final`) | NeurIPS title block |
 | `neurips2025` | `neurips_2025` | one | yes (until `final`) | NeurIPS title block |
@@ -81,6 +84,8 @@ venue's abstract environment for the submission.
 | `colorlinks` | Colored hyperlinks instead of boxed ones |
 | `notheorems` | Skip the theorem environments |
 | `minimal` | Skip tikz, listings, and pifont for faster compiles |
+| `nolibertine` | `arxiv1col` only: keep the default fonts instead of Libertine |
+| `acmtrim` | `arxiv1col` only: acmsmall's 6.75 x 10 in page at 10 pt |
 
 Two knobs live outside the option list, because they have to be set before the
 package loads:
@@ -90,6 +95,78 @@ package loads:
 \def\pkneuripstrack{position}   % NeurIPS camera-ready track: main (default), position, eandd, creativeai
 \usepackage[neurips]{styles/paperkit}
 ```
+
+## The one-column preprint (`arxiv1col`)
+
+`arxiv1col` is the two-column `arxiv` mode's quieter sibling: same front matter,
+same panel, but a single column set the way ACM's `acmart` sets `acmsmall`.
+
+It is a US Letter sheet carrying acmsmall's proportions. Every margin is the
+same fraction of the page it is in acmsmall, so the text block lands on the
+same fraction of the sheet:
+
+| | `acmsmall` | `arxiv1col` (Letter) | `arxiv1col` + `acmtrim` |
+| --- | --- | --- | --- |
+| Trim | 6.75 x 10 in | 8.5 x 11 in | 6.75 x 10 in |
+| Side margin | 46 pt = 0.0943 w | 57.93 pt = **0.0943 w** | 46 pt |
+| Top | 58 pt = 0.0803 h | 63.8 pt = **0.0803 h** | 58 pt |
+| Bottom | 44 pt = 0.0609 h | 48.4 pt = **0.0609 h** | 44 pt |
+| `\textwidth` | 395.82 pt = 0.8114 w | 498.44 pt = **0.8114 w** | 395.82 pt |
+| Text | Libertine 10/12 | Libertine 11/13.6 | Libertine 10/12 |
+| Title | 17 pt (`\LARGE`) | 17 pt (`\LARGE`) | 17 pt (`\LARGE`) |
+| Characters per line | 97 | 109 | 97 |
+
+The type size is the part that cannot be copied across. Holding the margin
+ratios on a sheet 1.26 times wider gives a 6.9 in measure, and what governs a
+line is measure over type size, not measure alone, so the two have to move
+together. Measured over an 8k-character sample, that 6.9 in line runs 122
+characters at 10 pt, 109 at 11 pt and 101 at 12 pt, against acmsmall's own 97.
+
+12 pt is therefore the size that matches acmsmall's density exactly, but it
+sets a preprint in type noticeably larger than the 10-11 pt readers expect.
+`arxiv1col` uses 11 pt instead: about 12% more characters per line than
+acmsmall, on a page that reads as a normal preprint. Both are long measures --
+acmsmall is a journal format tuned for page economy, and 97 characters is well
+past the 45-75 that typographic convention recommends. If you want the shorter
+line rather than the familiar page, `acmtrim` gives you acmsmall exactly.
+
+The title does not scale with the body. `acmart` sets the acmsmall title with
+`\LARGE`, which is `\@xviipt` = 17.28 pt in both `size10.clo` and `size11.clo`,
+so both pages carry the same 17 pt title whichever body size they use.
+
+Everything else -- Biolinum sans headings flush left, run-in italic
+subsubsection and paragraph heads with a closing period, `newtxmath` on
+Libertine letters, Inconsolata mono, a one em indent with no `parskip` -- is
+`acmart`'s, unchanged.
+
+Pass `acmtrim` for acmsmall's own 6.75 x 10 in page at 10 pt, reproducing
+acmart's `\textwidth` of 395.82 pt and `\textheight` of 574 pt to the point:
+
+```bash
+make OPTS=acmtrim arxiv1col
+```
+
+`main.tex` never changes for either: the body size comes from the package, not
+from a class option, so the same file still compiles for every other venue.
+
+```bash
+make arxiv1col                  # -> main.pdf and build/main-arxiv1col.pdf
+make OPTS=nopanel arxiv1col     # plain left-aligned title block instead
+make example                    # -> examples/arxiv1col-demo.pdf
+```
+
+![arxiv1col output](docs/preview-arxiv1col.png)
+
+`examples/arxiv1col-demo.tex` is a two-page paper that exercises the whole
+layout -- all four heading levels, run-in heads, math, a theorem, a table, a
+figure, a listing, and citations -- so you can see what the style does to real
+material before committing to it. It reads `styles/` and `references.bib` from
+the repository root, so compile it from `examples/` (or run `make example`).
+
+Fonts come from `libertine`, `newtx`, and `inconsolata`, all stock TeX Live and
+all available on Overleaf. If they are missing the package warns once and falls
+back to the default fonts; pass `nolibertine` to keep the default fonts on
+purpose and still get the layout.
 
 ## The title panel
 
@@ -135,7 +212,8 @@ You do not need to re-`\usepackage` any of these: `microtype`, `graphicx`,
 `nicefrac`, `xcolor`, `enumitem`, `placeins`, `hyperref`, `natbib`, `url`,
 `tcolorbox`, `helvet`, plus `listings`, `tikz`, and `pifont` unless you asked
 for `minimal`. `stfloats` is added in two-column modes so `figure*` can sit at
-the bottom of a page. To use BibLaTeX instead of the default natbib path:
+the bottom of a page; `geometry`, `libertine`, `zi4`, and `newtxmath` are added
+in `arxiv1col`. To use BibLaTeX instead of the default natbib path:
 
 ```latex
 \usepackage[arxiv,nonatbib]{styles/paperkit}
@@ -177,9 +255,10 @@ main.tex            your paper: front matter + \input list
 sections/           abstract.tex, introduction.tex, appendix.tex
 references.bib      bibliography
 figures/            put figures here; ships a placeholder logo + its TikZ source
+examples/           arxiv1col-demo.tex, the one-column layout exercised in full
 styles/paperkit.sty the package
 styles/icml2026.sty, neurips_2026.sty, neurips_2025.sty, icml2026.bst
-Makefile            make arxiv | icml | neurips | plain, FINAL=1 for camera-ready
+Makefile            make arxiv | arxiv1col | icml | neurips | plain, FINAL=1 for camera-ready
 ```
 
 `\bibliographystyle{plainnat}` is the default and works everywhere. For an ICML

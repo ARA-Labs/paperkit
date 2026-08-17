@@ -13,3 +13,4 @@
 *.vrb
 build/
 main.pdf
+examples/*.pdf
