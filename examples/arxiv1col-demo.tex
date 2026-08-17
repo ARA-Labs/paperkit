@@ -33,13 +33,16 @@
 \papernote{\textsuperscript{*}Equal contribution.}
 
 \paperabstract{%
-  This demo is the \texttt{arxiv1col} venue talking about itself. It is
-  \texttt{acmart}'s \texttt{acmsmall} page, value for value: a 6.75 by 10 inch
-  trim with 46 point side margins, Linux Libertine at ten point on twelve point
-  leading, Biolinum sans headings, a 395.8 point measure, and a ten point
-  paragraph indent with no glue between paragraphs. The page is smaller than US
-  Letter, which is what makes those margins read as a frame rather than as
-  waste. Everything below exists to show what the settings do to real material.%
+  This demo is the \texttt{arxiv1col} venue talking about itself. It puts
+  \texttt{acmart}'s \texttt{acmsmall} proportions on a US Letter sheet: every
+  margin is the same fraction of the page it is in acmsmall, so the text block
+  covers 0.811 of the width exactly as ACM sets it. Those fractions give a 6.9
+  inch measure, 1.26 times acmsmall's, so the type scales with them -- Linux
+  Libertine at twelve point on fourteen and a half point leading, which brings
+  a line back to about seventy-nine characters against acmsmall's
+  seventy-five. Pass \texttt{acmtrim} for acmsmall's own 6.75 by 10 inch page
+  at ten point instead. Everything below shows what the settings do to real
+  material.%
 }
 
 \papercorrespondence{First Author (\href{mailto:you@example.edu}{you@example.edu})}
@@ -59,10 +62,11 @@ three quarters of a line above it and a quarter of a line below. That is
 tighter than the \texttt{article} default, and it is what keeps an acmsmall
 page dense without feeling crowded.
 
-This second paragraph starts with a ten point indent and no vertical glue,
-which is how \texttt{acmart} separates paragraphs. The measure is 5.48 inches,
-so a line holds roughly seventy-five characters -- long enough to justify
-cleanly, short enough to stay comfortable to read.
+This second paragraph starts with a one em indent and no vertical glue, which
+is how \texttt{acmart} separates paragraphs. Margin ratios alone do not make a
+page readable: what governs a line is measure over type size, so widening the
+measure to 6.9 inches without growing the type would push a line to ninety-five
+characters. Scaling both keeps it near acmsmall's seventy-five.
 
 \subsection{A subsection}
 \label{sec:sub}
@@ -96,8 +100,8 @@ the surrounding text rather than jumping to Computer Modern:
 
 \begin{theorem}[Measure and leading]
   \label{thm:measure}
-  A ten point face set on twelve point leading across a 5.48 inch measure
-  yields a line long enough to justify without visible rivers.
+  Scaling face, leading, and measure by a common factor leaves characters per
+  line unchanged, so a page keeps its colour at any trim size.
 \end{theorem}
 
 \begin{proof}
@@ -141,7 +145,8 @@ from \verb|\cmark| and \verb|\xmark|.
 Listings use Inconsolata, the mono face acmsmall pairs with Libertine:
 
 \begin{lstlisting}[language=bash]
-make arxiv1col                # one-column preprint
+make arxiv1col                # one-column preprint on US Letter
+make OPTS=acmtrim arxiv1col   # acmsmall's own 6.75x10in page at 10pt
 make OPTS=nopanel arxiv1col   # plain title block instead of the panel
 \end{lstlisting}
 

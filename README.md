@@ -85,6 +85,7 @@ venue's abstract environment for the submission.
 | `notheorems` | Skip the theorem environments |
 | `minimal` | Skip tikz, listings, and pifont for faster compiles |
 | `nolibertine` | `arxiv1col` only: keep the default fonts instead of Libertine |
+| `acmtrim` | `arxiv1col` only: acmsmall's 6.75 x 10 in page at 10 pt |
 
 Two knobs live outside the option list, because they have to be set before the
 package loads:
@@ -100,32 +101,41 @@ package loads:
 `arxiv1col` is the two-column `arxiv` mode's quieter sibling: same front matter,
 same panel, but a single column set the way ACM's `acmart` sets `acmsmall`.
 
-The settings are acmsmall's, value for value:
+It is a US Letter sheet carrying acmsmall's proportions. Every margin is the
+same fraction of the page it is in acmsmall, so the text block lands on the
+same fraction of the sheet:
 
-| | `acmsmall` | paperkit `arxiv1col` |
-| --- | --- | --- |
-| Trim | 6.75 x 10 in | same |
-| Side margins | 46 pt | same |
-| Top / bottom | 58 pt / 44 pt | same |
-| `\textwidth` | 395.82 pt | same |
-| `\textheight` | 574 pt | same |
-| Text | Linux Libertine 10/12 | same |
-| Headings | Biolinum sans bold, flush left | same |
-| Subsubsection / paragraph | run-in italic, closing period | same |
-| Math | `newtxmath` with Libertine letters | same |
-| Mono | Inconsolata (`zi4`) | same |
-| Paragraphs | 10 pt indent, no `parskip` | same |
+| | `acmsmall` | `arxiv1col` (Letter) | `arxiv1col` + `acmtrim` |
+| --- | --- | --- | --- |
+| Trim | 6.75 x 10 in | 8.5 x 11 in | 6.75 x 10 in |
+| Side margin | 46 pt = 0.0943 w | 57.93 pt = **0.0943 w** | 46 pt |
+| Top | 58 pt = 0.0803 h | 63.8 pt = **0.0803 h** | 58 pt |
+| Bottom | 44 pt = 0.0609 h | 48.4 pt = **0.0609 h** | 44 pt |
+| `\textwidth` | 395.82 pt = 0.8114 w | 498.44 pt = **0.8114 w** | 395.82 pt |
+| Text | Libertine 10/12 | Libertine 12/14.5 | Libertine 10/12 |
+| Characters per line | ~75 | ~79 | ~75 |
 
-The page is deliberately smaller than US Letter, because that is where the
-margins come from: 46 pt of side margin reads as a frame on a 6.75 in sheet and
-as a wasteland on an 8.5 in one. A Letter-size PDF with acmsmall's measure
-would put 1.5 in of white down each side, more than its own top margin, which
-is not what an ACM journal page looks like. Readers see the same page ACM
-prints, and arXiv accepts any trim size.
+The type size is the part that cannot be copied across. Holding the margin
+ratios on a sheet 1.26 times wider gives a 6.9 in measure, and a 10 pt line
+across 6.9 in runs about 95 characters -- far past acmsmall's ~75 and past the
+range that reads comfortably. Scaling the body to 12 pt brings it back to ~79.
+What governs a line is measure over type size, not measure alone, so the two
+have to move together.
 
-Nothing in `main.tex` changes: acmsmall's body size is 10 pt, which is what
-`\documentclass{article}` already gives you, so the same file still compiles
-for every other venue.
+Everything else -- Biolinum sans headings flush left, run-in italic
+subsubsection and paragraph heads with a closing period, `newtxmath` on
+Libertine letters, Inconsolata mono, a one em indent with no `parskip` -- is
+`acmart`'s, unchanged.
+
+Pass `acmtrim` for acmsmall's own 6.75 x 10 in page at 10 pt, reproducing
+acmart's `\textwidth` of 395.82 pt and `\textheight` of 574 pt to the point:
+
+```bash
+make OPTS=acmtrim arxiv1col
+```
+
+`main.tex` never changes for either: the body size comes from the package, not
+from a class option, so the same file still compiles for every other venue.
 
 ```bash
 make arxiv1col                  # -> main.pdf and build/main-arxiv1col.pdf

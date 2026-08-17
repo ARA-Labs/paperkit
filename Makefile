@@ -1,7 +1,8 @@
 # paperkit -- build the paper in any venue mode.
 #
 #   make            # same as `make arxiv'
-#   make arxiv1col  # one-column preprint, acmsmall look
+#   make arxiv1col  # one-column preprint, acmsmall proportions on US Letter
+#   make OPTS=acmtrim arxiv1col   # acmsmall's own 6.75x10in page at 10pt
 #   make neurips    # NeurIPS submission (anonymous)
 #   make icml       # ICML submission (anonymous)
 #   make plain      # plain article, no venue style
