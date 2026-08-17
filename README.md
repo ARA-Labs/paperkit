@@ -165,31 +165,33 @@ page. Opposite it:
 The first page is empty on that side because acmart's is: `firstpagestyle`
 keeps the top right for `\acmBadgeR`, the artifact-evaluation seal, which almost
 no paper sets. acmart puts no date in the head at all -- its publication line
-lives in the foot, in the slot `\papercopyright` takes here.
+lives in the foot, which is why `\papercopyright` sits there.
 
 The alternation is acmsmall's: the short title on the recto, the short author
 list on the verso, set in acmart's `\@headfootfont` -- Biolinum at footnote
-size, the same sans as the section heads. The folio takes it too; the rights
-line keeps the serif, as acmart's journal line does. Either side falls back to the other when only one is set, and
-the short title falls back to the plain-text title from `\papertitle`, so the
-head is never blank. A rule in the brand ink closes the head and opens the foot,
-which carries `\papercopyright` at the left and the page number at the right.
+size, the same sans as the section heads. The lockup wordmark and the folio
+take it too, so both sides of the head sit on one baseline at one size. Either
+side falls back to the other when only one is set, and the short title falls
+back to the plain-text title from `\papertitle`, so the head is never blank.
+
+Neither end carries a rule, as in acmart -- both `standardpagestyle` and
+`firstpagestyle` zero the two widths. The foot is the page number alone, unless
+`\papercopyright` is set.
 
 Left unset, `\paperbrand` borrows whatever `\paperlogo` already holds. The
-colours come from the ARA mark -- ink `#16122D`, accent `#E9A16F` -- and both
-the palette and the rule are overridable:
+colours come from the ARA mark and are overridable:
 
 ```latex
 \paperbrandcolor{16122D}{E9A16F}   % ink, accent
-\paperrulecolor{pkbrandaccent}     % any xcolor name; default is pkbrandink
 ```
 
-Head and foot are the only departure from acmsmall's page, and they cost the
-text block nothing: `head` and `headsep` trade against each other (14.3 pt +
-15.4 pt becomes 21 pt + 8.7 pt on Letter, 13 pt + 14 pt becomes 19 pt + 8 pt
-under `acmtrim`), so `\textwidth`, `\textheight`, and `\topmargin` come out at
-the same values acmart computes. Pass `noheader` to drop the furniture entirely
-and fall back to a centered page number.
+`pkbrandink` dresses the lockup; `pkbrandaccent` is the square on the mark,
+unused by the furniture but available to `\textcolor` in the body.
+
+None of this costs the text block anything: the lockup fits inside acmsmall's
+own 14.3 pt head, so `head`, `headsep`, `\textwidth`, `\textheight`, and
+`\topmargin` are all left at the values acmart computes. Pass `noheader` to
+drop the furniture entirely and fall back to a centered page number.
 
 Pass `acmtrim` for acmsmall's own 6.75 x 10 in page at 10 pt, reproducing
 acmart's `\textwidth` of 395.82 pt and `\textheight` of 574 pt to the point:

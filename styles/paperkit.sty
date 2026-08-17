@@ -184,15 +184,10 @@
     % acmart's acmsmall page, copied value for value: a 6.75x10in trim with
     % 46pt sides, a 58pt top and a 44pt bottom, which lands \textwidth on
     % 395.82pt and \textheight on 574pt -- the same numbers acmart computes.
-    %
-    % head and headsep are the one departure, and they cancel: acmsmall's
-    % 13pt+14pt becomes 19pt+8pt, so the running head has room for the brand
-    % lockup while the 27pt total -- and with it the top of the text block --
-    % is exactly where acmart puts it.
     \RequirePackage{geometry}
     \geometry{paperwidth=6.75in, paperheight=10in,
       left=46pt, right=46pt, top=58pt, bottom=44pt,
-      includeheadfoot, head=19pt, headsep=8pt, foot=2pc,
+      includeheadfoot, head=13pt, headsep=14pt, foot=2pc,
       marginparwidth=2pc, heightrounded}
   \else
     % acmsmall's proportions on a US Letter sheet. Every margin is the same
@@ -212,12 +207,9 @@
     % round \textheight against. size11.clo brings LaTeX's own 13.6pt leading.
     \input{size11.clo}\normalsize
     \RequirePackage{geometry}
-    % head and headsep again trade against each other: 14.3pt+15.4pt becomes
-    % 21pt+8.7pt, so the branded running head fits and the 29.7pt total -- the
-    % top of the text block -- does not move.
     \geometry{letterpaper,
       left=57.93pt, right=57.93pt, top=63.8pt, bottom=48.4pt,
-      includeheadfoot, head=21pt, headsep=8.7pt, foot=26.4pt,
+      includeheadfoot, head=14.3pt, headsep=15.4pt, foot=26.4pt,
       marginparwidth=2pc, heightrounded}
   \fi
   % geometry before hyperref, so hyperref sees the final page size.
@@ -598,8 +590,8 @@
 % A branded page furniture for the one-column preprint: the lockup at the left
 % of the head on every page, and opposite it the date on page 1 and then
 % acmsmall's alternation -- short title on the recto, short authors on the
-% verso -- from page 2 on. A rule in the brand ink closes the head, a matching
-% one opens the foot, and the page number sits at the outer edge of the foot.
+% verso -- from page 2 on. No rules at either end, as in acmart; the foot
+% carries the page number at the outer edge and nothing else by default.
 
 % The two colours the ARA mark is drawn in.
 \definecolor{pkbrandink}{HTML}{16122D}
@@ -607,10 +599,8 @@
 % \paperbrandcolor{<ink hex>}{<accent hex>}
 \newcommand{\paperbrandcolor}[2]{%
   \definecolor{pkbrandink}{HTML}{#1}\definecolor{pkbrandaccent}{HTML}{#2}}
-% The rules follow the ink by default; \paperrulecolor takes any xcolor name.
-\def\pk@rulecolor{pkbrandink}
-\newcommand{\paperrulecolor}[1]{\def\pk@rulecolor{#1}}
-\def\pk@rulewidth{0.4pt}
+% pkbrandink dresses the lockup. pkbrandaccent is the square on the mark; the
+% furniture does not use it, but it is here for \textcolor in the body.
 
 \ifpk@onecol\ifpk@header
   \RequirePackage{fancyhdr}
@@ -659,19 +649,11 @@
     \pk@headfootfont
     \ifodd\value{page}\pk@head@title\else\pk@head@authors\fi}
 
-  % fancyhdr draws both rules in vertical mode, so the colour has to arrive as
-  % a whatsit ahead of the rule rather than as \textcolor around it. The
-  % \vskip corrections are fancyhdr's own: without them the rules land a rule
-  % width and a \footruleskip away from where the package means them to sit.
-  \renewcommand{\headrulewidth}{\pk@rulewidth}
-  \renewcommand{\footrulewidth}{\pk@rulewidth}
-  \renewcommand{\headrule}{%
-    {\color{\pk@rulecolor}\hrule\@height\headrulewidth\@width\headwidth}%
-    \vskip-\headrulewidth}
-  \renewcommand{\footrule}{%
-    \vskip-\footruleskip\vskip-\footrulewidth
-    {\color{\pk@rulecolor}\hrule\@height\footrulewidth\@width\headwidth}%
-    \vskip\footruleskip}
+  % No rules, at either end. acmart draws none in any of its formats -- both
+  % standardpagestyle and firstpagestyle zero the two widths -- and the lockup
+  % and the running title mark the head well enough on their own.
+  \renewcommand{\headrulewidth}{\z@}
+  \renewcommand{\footrulewidth}{\z@}
 
   \newcommand{\pk@foot@left}{%
     \ifx\pk@copyright\@empty\else{\footnotesize\pk@copyright}\fi}
