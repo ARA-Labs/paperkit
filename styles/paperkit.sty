@@ -640,6 +640,12 @@
     \endgroup
   }
 
+  % acmart's \@headfootfont, which under Libertine means Biolinum -- the same
+  % sans the section heads use, at footnote size. It dresses the running head,
+  % the first-page date, and the folio, exactly the three things acmart sets
+  % in it. The rights line keeps the serif, as acmart's journal line does.
+  \def\pk@headfootfont{\sffamily\footnotesize}
+
   % acmsmall's alternation. Either side falls back to the other, so a paper
   % that sets only \paperrunningtitle still gets a head on every page.
   \newcommand{\pk@head@title}{%
@@ -647,7 +653,7 @@
   \newcommand{\pk@head@authors}{%
     \ifx\pk@shortauthors\@empty\pk@head@title\else\pk@shortauthors\fi}
   \newcommand{\pk@runninghead}{%
-    \small\itshape
+    \pk@headfootfont
     \ifodd\value{page}\pk@head@title\else\pk@head@authors\fi}
 
   % fancyhdr draws both rules in vertical mode, so the colour has to arrive as
@@ -666,13 +672,13 @@
 
   \newcommand{\pk@foot@left}{%
     \ifx\pk@copyright\@empty\else{\footnotesize\pk@copyright}\fi}
-  \newcommand{\pk@foot@right}{{\small\thepage}}
+  \newcommand{\pk@foot@right}{{\pk@headfootfont\thepage}}
 
   % Page 1: lockup against the date.
   \fancypagestyle{pkfirst}{%
     \fancyhf{}%
     \fancyhead[L]{\pk@lockup}%
-    \fancyhead[R]{\ifx\pk@date\@empty\else{\small\pk@date}\fi}%
+    \fancyhead[R]{\ifx\pk@date\@empty\else{\pk@headfootfont\pk@date}\fi}%
     \fancyfoot[L]{\pk@foot@left}%
     \fancyfoot[R]{\pk@foot@right}%
   }

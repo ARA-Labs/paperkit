@@ -168,7 +168,9 @@ no paper sets. acmart puts no date in the head at all -- its publication line
 lives in the foot, in the slot `\papercopyright` takes here.
 
 The alternation is acmsmall's: the short title on the recto, the short author
-list on the verso. Either side falls back to the other when only one is set, and
+list on the verso, set in acmart's `\@headfootfont` -- Biolinum at footnote
+size, the same sans as the section heads. The folio takes it too; the rights
+line keeps the serif, as acmart's journal line does. Either side falls back to the other when only one is set, and
 the short title falls back to the plain-text title from `\papertitle`, so the
 head is never blank. A rule in the brand ink closes the head and opens the foot,
 which carries `\papercopyright` at the left and the page number at the right.
