@@ -184,17 +184,20 @@ show the page number alone, unless `\papercopyright` is set.
 
 ### The title block
 
-`arxiv1col` centres the title, authors, affiliations, and note, and justifies
-the abstract beneath them -- the arrangement the one-column preprints this
-venue is modelled on use. The panel ends at the abstract; there is no footer
-row, since the emails are at the foot of the page and the brand is in the head.
+The title, authors, affiliations, and note are flush left, as in acmsmall. The
+abstract below them is justified, which is the one departure from the
+two-column `arxiv` panel -- that one keeps its ragged right. The panel ends at
+the abstract: there is no footer row, since the emails are at the foot of the
+page and the brand is in the head.
 
-The two-column `arxiv` panel is unchanged: flush left, ragged abstract, and the
-correspondence, code, and logos in its footer. Override either with:
+Centre the block instead with:
 
 ```latex
-\paperheadalign{center}   % or {left}
+\paperheadalign{center}   % or {left}, the default
 ```
+
+This moves the title, authors, affiliations, and note only. Abstract
+justification is set per venue and does not follow it.
 
 Left unset, `\paperbrand` borrows whatever `\paperlogo` already holds. The
 colours come from the ARA mark and are overridable:

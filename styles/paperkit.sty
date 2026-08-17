@@ -518,11 +518,11 @@
   \pk@extralogos
 }
 
-% arxiv1col centres the title block the way the one-column preprints it is
-% modelled on do, and justifies the abstract under it. The two-column panel
-% keeps the flush-left block and ragged abstract it has always had.
+% The title block is flush left in every venue, acmsmall's own arrangement and
+% the one the panel has always used. Abstract justification is a separate
+% question, settled by venue below: arxiv1col justifies, the two-column panel
+% keeps the ragged right it has always had.
 \newif\ifpk@panelcenter \pk@panelcenterfalse
-\ifpk@onecol\pk@panelcentertrue\fi
 % \paperheadalign{center} or {left}
 \def\pk@centerword{center}
 \newcommand{\paperheadalign}[1]{%
@@ -557,9 +557,12 @@
         \fi
       \fi
     \endgroup
+    % Justified under arxiv1col, ragged in the two-column panel. This does not
+    % follow the title alignment: \paperheadalign moves the block above without
+    % disturbing the abstract's setting.
     \ifx\pk@abstract\@empty\else
       \vskip 14pt
-      \ifpk@panelcenter\else\raggedright\fi
+      \ifpk@onecol\else\raggedright\fi
       \pk@abstract\par
     \fi
     % arxiv1col moves correspondence and code to the foot of the first page,
