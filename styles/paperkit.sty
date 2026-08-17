@@ -172,23 +172,18 @@
 % arxiv1col has no venue .sty of its own: it is a plain one-column article that
 % paperkit lays out in the acmsmall manner further down.
 \ifpk@onecol
-  % acmsmall, scaled up to fit Letter. Letter is 8.5in wide against
-  % acmsmall's 6.75in trim, so the whole page -- type included -- is scaled by
-  % 8.5/6.75 = 1.26 and the proportions survive the bigger sheet. Keeping
-  % acmsmall's 10pt type instead would hold its 5.48in measure and dump all
-  % 1.75in of extra width into the margins, which is not what an acmsmall page
-  % looks like: there the side margins (46pt) are smaller than the top margin
-  % (58pt), not larger.
-  %
-  % main.tex says \documentclass{article} for every venue, so the body size
-  % cannot come from a class option; LaTeX's own 12pt definitions are pulled
-  % in here instead.
-  \input{size12.clo}\normalsize
+  % acmart's acmsmall page, copied value for value: a 6.75x10in trim with
+  % 46pt sides, a 58pt top and a 44pt bottom, which lands \textwidth on
+  % 395.82pt and \textheight on 574pt -- the same numbers acmart computes.
+  % The sheet is smaller than Letter, which is exactly why the margins look
+  % the way they do in an ACM journal PDF: 46pt of side margin reads as a
+  % frame on a 6.75in page and as a wasteland on an 8.5in one.
   % geometry before hyperref, so hyperref sees the final page size.
   \RequirePackage{geometry}
-  \geometry{letterpaper,
-    left=1.25in, right=1.25in, top=1.2in, bottom=1.2in,
-    includefoot, footskip=28pt, heightrounded}
+  \geometry{paperwidth=6.75in, paperheight=10in,
+    left=46pt, right=46pt, top=58pt, bottom=44pt,
+    includeheadfoot, head=13pt, headsep=14pt, foot=2pc,
+    marginparwidth=2pc, heightrounded}
   \pk@loadhyperref
   \ifpk@natbib
     \@ifpackageloaded{natbib}{}{\RequirePackage[numbers]{natbib}}
@@ -243,12 +238,11 @@
 \providecommand{\theHalgorithm}{\arabic{algorithm}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% one-column arXiv %%
-% Fonts and layout for the `arxiv1col' venue: acmart's acmsmall reading
-% experience -- Libertine text, Biolinum headings, a ~5.5in measure, 10pt on
-% 12pt, tight run-in subsubsections -- on a US Letter page instead of
-% acmsmall's 6.75x10in trim, so the PDF prints normally. The page geometry is
-% set with the venue above; this block comes after the common packages on
-% purpose, because libertine has to win over helvet for \sfdefault.
+% Fonts and layout for the `arxiv1col' venue: acmart's acmsmall settings --
+% Libertine text on 10pt/12pt, Biolinum headings, tight run-in subsubsections,
+% a 10pt paragraph indent. The page geometry is set with the venue above; this
+% block comes after the common packages on purpose, because libertine has to
+% win over helvet for \sfdefault.
 \ifpk@onecol
   \ifpk@libertine
     \IfFileExists{libertine.sty}{%
@@ -262,8 +256,8 @@
     }%
   \fi
 
-  % acmsmall paragraphing: a one-em indent and no inter-paragraph glue.
-  \setlength{\parindent}{12\p@}
+  % acmsmall paragraphing: a 10pt indent and no inter-paragraph glue.
+  \setlength{\parindent}{10\p@}
   \setlength{\parskip}{\z@}
 
   % Headings: sans bold, flush left, tight above and below; subsubsection and
@@ -301,7 +295,7 @@
   \renewcommand{\@maketitle}{%
     \null
     \begin{flushleft}%
-      {\sffamily\bfseries\fontsize{21}{25}\selectfont\@title\par}%
+      {\sffamily\bfseries\fontsize{17}{21}\selectfont\@title\par}%
       \ifx\@author\@empty\else\vskip 12\p@{\@author\par}\fi
       \ifx\@date\@empty\else\vskip 6\p@{\small\@date\par}\fi
     \end{flushleft}%
@@ -386,10 +380,11 @@
 \newcommand{\paperpanelcolor}[1]{\definecolor{pkpanelbg}{HTML}{#1}}
 \def\pk@titlesize{19}\def\pk@titleskip{23}
 \let\pk@footerfont\@empty
-% arxiv1col sets a 12pt body: the panel title scales with it, and the footer
-% drops a size so the correspondence line still fits beside the logos.
+% arxiv1col runs on acmsmall's narrow measure, so the panel title comes down a
+% little and the footer drops a size to keep the correspondence line beside
+% the logos rather than under them.
 \ifpk@onecol
-  \def\pk@titlesize{23}\def\pk@titleskip{27}
+  \def\pk@titlesize{17}\def\pk@titleskip{21}
   \let\pk@footerfont\small
 \fi
 \newcommand{\papertitlesize}[2]{\def\pk@titlesize{#1}\def\pk@titleskip{#2}}

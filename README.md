@@ -67,7 +67,7 @@ venue's abstract environment for the submission.
 | Option | Style file | Columns | Anonymous | First page |
 | --- | --- | --- | --- | --- |
 | `arxiv` (default) | `icml2026` + `preprint` | two | no | rounded panel |
-| `arxiv1col` | none (acmsmall-style layout) | one | no | rounded panel |
+| `arxiv1col` | none (acmsmall settings) | one | no | rounded panel |
 | `icml` | `icml2026` | two | yes (until `final`) | ICML title block |
 | `neurips` | `neurips_2026` | one | yes (until `final`) | NeurIPS title block |
 | `neurips2025` | `neurips_2025` | one | yes (until `final`) | NeurIPS title block |
@@ -100,31 +100,32 @@ package loads:
 `arxiv1col` is the two-column `arxiv` mode's quieter sibling: same front matter,
 same panel, but a single column set the way ACM's `acmart` sets `acmsmall`.
 
-It is the acmsmall page scaled to fit Letter. Letter is 8.5 in wide against
-acmsmall's 6.75 in trim, so everything -- type included -- is multiplied by
-8.5 / 6.75 = 1.26:
+The settings are acmsmall's, value for value:
 
 | | `acmsmall` | paperkit `arxiv1col` |
 | --- | --- | --- |
-| Page | 6.75 x 10 in trim | US Letter |
-| Side margins | 46 pt (0.64 in) | 1.25 in |
-| Measure | 5.48 in | 6 in |
-| Text | Linux Libertine 10/12 | Linux Libertine 12/14.5 |
+| Trim | 6.75 x 10 in | same |
+| Side margins | 46 pt | same |
+| Top / bottom | 58 pt / 44 pt | same |
+| `\textwidth` | 395.82 pt | same |
+| `\textheight` | 574 pt | same |
+| Text | Linux Libertine 10/12 | same |
 | Headings | Biolinum sans bold, flush left | same |
 | Subsubsection / paragraph | run-in italic, closing period | same |
 | Math | `newtxmath` with Libertine letters | same |
 | Mono | Inconsolata (`zi4`) | same |
-| Paragraphs | 1 em indent, no `parskip` | same |
+| Paragraphs | 10 pt indent, no `parskip` | same |
 
-Scaling the type along with the sheet is the whole point. Keeping acmsmall's
-10 pt body would hold its 5.48 in measure and push all 1.75 in of extra Letter
-width into the margins -- and an acmsmall page has side margins *smaller* than
-its top margin (46 pt against 58 pt), not larger. Characters per line, the
-number that actually governs reading, comes out where ACM put it.
+The page is deliberately smaller than US Letter, because that is where the
+margins come from: 46 pt of side margin reads as a frame on a 6.75 in sheet and
+as a wasteland on an 8.5 in one. A Letter-size PDF with acmsmall's measure
+would put 1.5 in of white down each side, more than its own top margin, which
+is not what an ACM journal page looks like. Readers see the same page ACM
+prints, and arXiv accepts any trim size.
 
-`main.tex` says `\documentclass{article}` for every venue, so the 12 pt body
-comes from the package rather than a class option; you do not have to change
-anything to switch between venues.
+Nothing in `main.tex` changes: acmsmall's body size is 10 pt, which is what
+`\documentclass{article}` already gives you, so the same file still compiles
+for every other venue.
 
 ```bash
 make arxiv1col                  # -> main.pdf and build/main-arxiv1col.pdf
