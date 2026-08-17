@@ -8,6 +8,7 @@ venue with a single word:
 
 ```latex
 \usepackage[arxiv]{styles/paperkit}     % preprint, two-column, rounded title panel
+\usepackage[arxiv1col]{styles/paperkit} % preprint, one-column, acmsmall look
 \usepackage[neurips]{styles/paperkit}   % NeurIPS 2026 submission (anonymous)
 \usepackage[icml]{styles/paperkit}      % ICML 2026 submission (anonymous)
 \usepackage[plain]{styles/paperkit}     % plain article, no venue style
@@ -21,6 +22,7 @@ else in the document changes.
 ```bash
 cp -r paperkit my-paper && cd my-paper
 make            # arXiv preprint  -> main.pdf
+make arxiv1col  # one-column preprint, acmsmall look
 make neurips    # NeurIPS submission
 make icml       # ICML submission
 make plain      # no venue style
@@ -65,6 +67,7 @@ venue's abstract environment for the submission.
 | Option | Style file | Columns | Anonymous | First page |
 | --- | --- | --- | --- | --- |
 | `arxiv` (default) | `icml2026` + `preprint` | two | no | rounded panel |
+| `arxiv1col` | none (acmsmall-style layout) | one | no | rounded panel |
 | `icml` | `icml2026` | two | yes (until `final`) | ICML title block |
 | `neurips` | `neurips_2026` | one | yes (until `final`) | NeurIPS title block |
 | `neurips2025` | `neurips_2025` | one | yes (until `final`) | NeurIPS title block |
@@ -81,6 +84,7 @@ venue's abstract environment for the submission.
 | `colorlinks` | Colored hyperlinks instead of boxed ones |
 | `notheorems` | Skip the theorem environments |
 | `minimal` | Skip tikz, listings, and pifont for faster compiles |
+| `nolibertine` | `arxiv1col` only: keep the default fonts instead of Libertine |
 
 Two knobs live outside the option list, because they have to be set before the
 package loads:
@@ -90,6 +94,36 @@ package loads:
 \def\pkneuripstrack{position}   % NeurIPS camera-ready track: main (default), position, eandd, creativeai
 \usepackage[neurips]{styles/paperkit}
 ```
+
+## The one-column preprint (`arxiv1col`)
+
+`arxiv1col` is the two-column `arxiv` mode's quieter sibling: same front matter,
+same panel, but a single column set the way ACM's `acmart` sets `acmsmall`.
+
+| | `acmsmall` | paperkit `arxiv1col` |
+| --- | --- | --- |
+| Page | 6.75 x 10 in trim | US Letter, 1.5 in side margins |
+| Measure | 5.48 in | 5.5 in |
+| Text | Linux Libertine 10/12 | same |
+| Headings | Biolinum sans bold, flush left | same |
+| Subsubsection / paragraph | run-in italic, closing period | same |
+| Math | `newtxmath` with Libertine letters | same |
+| Mono | Inconsolata (`zi4`) | same |
+| Paragraphs | 10 pt indent, no `parskip` | same |
+
+The page is Letter rather than acmsmall's small trim so the PDF prints and reads
+on screen like every other preprint. Everything else -- fonts, measure, heading
+scale, run-in headings -- is `acmart`'s.
+
+```bash
+make arxiv1col                  # -> main.pdf and build/main-arxiv1col.pdf
+make OPTS=nopanel arxiv1col     # plain left-aligned title block instead
+```
+
+Fonts come from `libertine`, `newtx`, and `inconsolata`, all stock TeX Live and
+all available on Overleaf. If they are missing the package warns once and falls
+back to the default fonts; pass `nolibertine` to keep the default fonts on
+purpose and still get the layout.
 
 ## The title panel
 
@@ -135,7 +169,8 @@ You do not need to re-`\usepackage` any of these: `microtype`, `graphicx`,
 `nicefrac`, `xcolor`, `enumitem`, `placeins`, `hyperref`, `natbib`, `url`,
 `tcolorbox`, `helvet`, plus `listings`, `tikz`, and `pifont` unless you asked
 for `minimal`. `stfloats` is added in two-column modes so `figure*` can sit at
-the bottom of a page. To use BibLaTeX instead of the default natbib path:
+the bottom of a page; `geometry`, `libertine`, `zi4`, and `newtxmath` are added
+in `arxiv1col`. To use BibLaTeX instead of the default natbib path:
 
 ```latex
 \usepackage[arxiv,nonatbib]{styles/paperkit}
@@ -179,7 +214,7 @@ references.bib      bibliography
 figures/            put figures here; ships a placeholder logo + its TikZ source
 styles/paperkit.sty the package
 styles/icml2026.sty, neurips_2026.sty, neurips_2025.sty, icml2026.bst
-Makefile            make arxiv | icml | neurips | plain, FINAL=1 for camera-ready
+Makefile            make arxiv | arxiv1col | icml | neurips | plain, FINAL=1 for camera-ready
 ```
 
 `\bibliographystyle{plainnat}` is the default and works everywhere. For an ICML

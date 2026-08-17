@@ -23,7 +23,7 @@ compile_fixture() {
   fi
 }
 
-for venue in arxiv icml neurips neurips2025 plain
+for venue in arxiv arxiv1col icml neurips neurips2025 plain
 do
   compile_fixture tests/paperkit-natbib.tex "$venue" natbib
   compile_fixture tests/paperkit-biblatex.tex "$venue" biblatex

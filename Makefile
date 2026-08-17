@@ -1,6 +1,7 @@
 # paperkit -- build the paper in any venue mode.
 #
 #   make            # same as `make arxiv'
+#   make arxiv1col  # one-column preprint, acmsmall look
 #   make neurips    # NeurIPS submission (anonymous)
 #   make icml       # ICML submission (anonymous)
 #   make plain      # plain article, no venue style
@@ -34,11 +35,11 @@ else
   PKOPTS = \PassOptionsToPackage{$(ALLOPTS)}{styles/paperkit}
 endif
 
-.PHONY: all arxiv icml neurips neurips2025 plain build test clean distclean
+.PHONY: all arxiv arxiv1col icml neurips neurips2025 plain build test clean distclean
 
 all: arxiv
 
-arxiv icml neurips neurips2025 plain:
+arxiv arxiv1col icml neurips neurips2025 plain:
 	@$(MAKE) --no-print-directory build VENUE=$@
 
 build:

@@ -5,12 +5,14 @@
 %% needs, and switches venue style with a single option:
 %%
 %%   \usepackage[arxiv]{styles/paperkit}    % preprint, two-column (ICML style)
+%%   \usepackage[arxiv1col]{styles/paperkit}% preprint, one-column (acmsmall look)
 %%   \usepackage[neurips]{styles/paperkit}  % NeurIPS 2026 submission
 %%   \usepackage[icml]{styles/paperkit}     % ICML 2026 submission
 %%   \usepackage[plain]{styles/paperkit}    % plain article, no venue style
 %%
 %% Options
-%%   arxiv | icml | neurips | neurips2025 | plain   venue (default: arxiv)
+%%   arxiv | arxiv1col | icml | neurips | neurips2025 | plain
+%%                  venue (default: arxiv)
 %%   final          camera-ready / de-anonymized
 %%   nonatbib      do not load natbib (for BibLaTeX documents)
 %%   panel          force the rounded title+abstract panel on
@@ -18,6 +20,7 @@
 %%   colorlinks     colored hyperlinks instead of boxed ones
 %%   notheorems     do not define theorem environments
 %%   minimal        skip the heavy optional packages (tikz, listings, pifont)
+%%   nolibertine    arxiv1col only: keep the default fonts instead of Libertine
 %%
 %% The venue can also be set from the command line without editing main.tex:
 %%   pdflatex "\def\pkvenue{neurips}\input{main.tex}"
@@ -41,8 +44,10 @@
 \newif\ifpk@theorems   \pk@theoremstrue
 \newif\ifpk@colorlinks \pk@colorlinksfalse
 \newif\ifpk@natbib     \pk@natbibtrue
+\newif\ifpk@libertine  \pk@libertinetrue
 
 \DeclareOption{arxiv}{\def\pk@venue{arxiv}}
+\DeclareOption{arxiv1col}{\def\pk@venue{arxiv1col}}
 \DeclareOption{icml}{\def\pk@venue{icml}}
 \DeclareOption{neurips}{\def\pk@venue{neurips}}
 \DeclareOption{neurips2025}{\def\pk@venue{neurips2025}}
@@ -55,23 +60,25 @@
 \DeclareOption{notheorems}{\pk@theoremsfalse}
 \DeclareOption{colorlinks}{\pk@colorlinkstrue}
 \DeclareOption{nonatbib}{\pk@natbibfalse}
+\DeclareOption{nolibertine}{\pk@libertinefalse}
 \DeclareOption*{\PackageWarning{paperkit}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
 % \def\pkvenue{...} on the command line wins over the package option.
 \@ifundefined{pkvenue}{}{\edef\pk@venue{\pkvenue}}
 
-\newif\ifpk@arxiv    \newif\ifpk@icml
+\newif\ifpk@arxiv    \newif\ifpk@icml    \newif\ifpk@onecol
 \newif\ifpk@neurips  \newif\ifpk@nrold  \newif\ifpk@plainvenue
 \def\pk@tmp{arxiv}\ifx\pk@venue\pk@tmp\pk@arxivtrue\fi
+\def\pk@tmp{arxiv1col}\ifx\pk@venue\pk@tmp\pk@onecoltrue\fi
 \def\pk@tmp{icml}\ifx\pk@venue\pk@tmp\pk@icmltrue\fi
 \def\pk@tmp{neurips}\ifx\pk@venue\pk@tmp\pk@neuripstrue\fi
 \def\pk@tmp{neurips2025}\ifx\pk@venue\pk@tmp\pk@neuripstrue\pk@nroldtrue\fi
 \def\pk@tmp{plain}\ifx\pk@venue\pk@tmp\pk@plainvenuetrue\fi
-\ifpk@arxiv\else\ifpk@icml\else\ifpk@neurips\else\ifpk@plainvenue\else
+\ifpk@arxiv\else\ifpk@onecol\else\ifpk@icml\else\ifpk@neurips\else\ifpk@plainvenue\else
   \PackageError{paperkit}{Unknown venue `\pk@venue'}%
-    {Use one of: arxiv, icml, neurips, neurips2025, plain.}%
-\fi\fi\fi\fi
+    {Use one of: arxiv, arxiv1col, icml, neurips, neurips2025, plain.}%
+\fi\fi\fi\fi\fi
 
 % Blind venues: paperkit-rendered headers (panel, ICML box) must hide authors
 % unless `final' is given. The NeurIPS style anonymizes its native block itself.
@@ -83,7 +90,9 @@
 
 % Panel is the default look for preprints only; venues get their native block.
 \ifpk@panelset\else
-  \ifpk@arxiv\pk@paneltrue\else\pk@panelfalse\fi
+  \pk@panelfalse
+  \ifpk@arxiv\pk@paneltrue\fi
+  \ifpk@onecol\pk@paneltrue\fi
 \fi
 
 \providecommand{\pkstyledir}{styles/}
@@ -160,6 +169,19 @@
   \pk@load
   \pk@loadhyperref
 \fi
+% arxiv1col has no venue .sty of its own: it is a plain one-column article that
+% paperkit lays out in the acmsmall manner further down.
+\ifpk@onecol
+  % geometry before hyperref, so hyperref sees the final page size.
+  \RequirePackage{geometry}
+  \geometry{letterpaper,
+    left=1.5in, right=1.5in, top=1.2in, bottom=1.2in,
+    includefoot, footskip=26pt, heightrounded}
+  \pk@loadhyperref
+  \ifpk@natbib
+    \@ifpackageloaded{natbib}{}{\RequirePackage[numbers]{natbib}}
+  \fi
+\fi
 \ifpk@plainvenue
   \pk@loadhyperref
   \ifpk@natbib
@@ -207,6 +229,72 @@
 
 % hyperref + algorithmic need this to agree on labels.
 \providecommand{\theHalgorithm}{\arabic{algorithm}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% one-column arXiv %%
+% Fonts and layout for the `arxiv1col' venue: acmart's acmsmall reading
+% experience -- Libertine text, Biolinum headings, a ~5.5in measure, 10pt on
+% 12pt, tight run-in subsubsections -- on a US Letter page instead of
+% acmsmall's 6.75x10in trim, so the PDF prints normally. The page geometry is
+% set with the venue above; this block comes after the common packages on
+% purpose, because libertine has to win over helvet for \sfdefault.
+\ifpk@onecol
+  \ifpk@libertine
+    \IfFileExists{libertine.sty}{%
+      \RequirePackage[tt=false,type1=true]{libertine}%
+      \IfFileExists{zi4.sty}{\RequirePackage[varqu]{zi4}}{}%
+      \IfFileExists{newtxmath.sty}{\RequirePackage[libertine]{newtxmath}}{}%
+    }{%
+      \PackageWarning{paperkit}{Package libertine not installed; arxiv1col
+        falls back to the default fonts. Install libertine, newtx and
+        inconsolata, or pass the `nolibertine' option to silence this}%
+    }%
+  \fi
+
+  % acmsmall paragraphing: a small indent and no inter-paragraph glue.
+  \setlength{\parindent}{10\p@}
+  \setlength{\parskip}{\z@}
+
+  % Headings: sans bold, flush left, tight above and below; subsubsection and
+  % paragraph run into the text and take a closing period, as in acmart.
+  \newcommand{\pk@headraggedright}{%
+    \@rightskip\@flushglue \rightskip\@rightskip
+    \leftskip\z@skip \parindent\z@}
+  \newcommand{\pk@adddot}[1]{#1.}
+  \renewcommand\section{\@startsection{section}{1}{\z@}%
+    {-.75\baselineskip \@plus -2\p@ \@minus -.2\p@}%
+    {.25\baselineskip}%
+    {\normalfont\sffamily\bfseries\pk@headraggedright}}
+  \renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+    {-.75\baselineskip \@plus -2\p@ \@minus -.2\p@}%
+    {.25\baselineskip}%
+    {\normalfont\sffamily\bfseries\pk@headraggedright}}
+  \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+    {-.5\baselineskip \@plus -2\p@ \@minus -.2\p@}%
+    {-3.5\p@}%
+    {\normalfont\sffamily\itshape\pk@adddot}}
+  \renewcommand\paragraph{\@startsection{paragraph}{4}{\parindent}%
+    {-.5\baselineskip \@plus -2\p@ \@minus -.2\p@}%
+    {-3.5\p@}%
+    {\normalfont\itshape\pk@adddot}}
+
+  \captionsetup{labelfont=bf, labelsep=colon, font=small, margin=\z@}
+
+  % acmsmall runs the abstract as a plain paragraph at full measure, with no
+  % centered `Abstract' heading. Only the nopanel path reaches this; the panel
+  % typesets the abstract itself.
+  \renewenvironment{abstract}{\vskip 6\p@\par\noindent\ignorespaces}%
+                             {\par\vskip 6\p@}
+
+  % Native (nopanel) title block, left aligned like acmsmall's.
+  \renewcommand{\@maketitle}{%
+    \null
+    \begin{flushleft}%
+      {\sffamily\bfseries\fontsize{17}{21}\selectfont\@title\par}%
+      \ifx\@author\@empty\else\vskip 12\p@{\@author\par}\fi
+      \ifx\@date\@empty\else\vskip 6\p@{\small\@date\par}\fi
+    \end{flushleft}%
+    \par\vskip 12\p@}
+\fi
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% small niceties %%
 \ifpk@minimal
