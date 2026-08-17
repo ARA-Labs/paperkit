@@ -34,3 +34,8 @@ done
 # The one-column venue's second page geometry, and its no-Libertine fallback.
 compile_fixture tests/paperkit-natbib.tex arxiv1col,acmtrim natbib
 compile_fixture tests/paperkit-natbib.tex arxiv1col,nolibertine natbib
+
+# The branded head and foot: switched off, and on over the native title block
+# rather than the panel.
+compile_fixture tests/paperkit-natbib.tex arxiv1col,noheader natbib
+compile_fixture tests/paperkit-natbib.tex arxiv1col,nopanel natbib

@@ -58,6 +58,16 @@ renders whichever first page the venue calls for.
 \makepaperheader
 ```
 
+Four more fields feed the `arxiv1col` running head and foot, and are ignored by
+every other venue:
+
+```latex
+\paperbrand[11pt]{figures/ara-logo.png}{ARA Labs}  % lockup at the left of the head
+\papershortauthors{Falck et al.}                   % verso side of the head
+\papercopyright{\textcopyright\ 2026 ARA Labs. All rights reserved.}
+\paperdate{14 August 2026}      % first-page head; defaults to \today, {} blanks it
+```
+
 Keep `sections/abstract.tex` as raw body text with no `\begin{abstract}` wrapper.
 That is what lets the same file go into the panel for the preprint and into the
 venue's abstract environment for the submission.
@@ -86,6 +96,7 @@ venue's abstract environment for the submission.
 | `minimal` | Skip tikz, listings, and pifont for faster compiles |
 | `nolibertine` | `arxiv1col` only: keep the default fonts instead of Libertine |
 | `acmtrim` | `arxiv1col` only: acmsmall's 6.75 x 10 in page at 10 pt |
+| `noheader` | `arxiv1col` only: drop the branded head and foot for a plain page number |
 
 Two knobs live outside the option list, because they have to be set before the
 package loads:
@@ -138,6 +149,40 @@ Everything else -- Biolinum sans headings flush left, run-in italic
 subsubsection and paragraph heads with a closing period, `newtxmath` on
 Libertine letters, Inconsolata mono, a one em indent with no `parskip` -- is
 `acmart`'s, unchanged.
+
+### The running head and foot
+
+`arxiv1col` carries branded page furniture. The horizontal lockup -- the mark
+and the wordmark from `\paperbrand` -- sits at the left of the head on every
+page. Opposite it:
+
+| Page | Right of the head |
+| --- | --- |
+| 1 | `\paperdate`, defaulting to `\today` |
+| odd | `\paperrunningtitle` |
+| even | `\papershortauthors` |
+
+That alternation is acmsmall's: the short title on the recto, the short author
+list on the verso. Either side falls back to the other when only one is set, and
+the short title falls back to the plain-text title from `\papertitle`, so the
+head is never blank. A rule in the brand ink closes the head and opens the foot,
+which carries `\papercopyright` at the left and the page number at the right.
+
+Left unset, `\paperbrand` borrows whatever `\paperlogo` already holds. The
+colours come from the ARA mark -- ink `#16122D`, accent `#E9A16F` -- and both
+the palette and the rule are overridable:
+
+```latex
+\paperbrandcolor{16122D}{E9A16F}   % ink, accent
+\paperrulecolor{pkbrandaccent}     % any xcolor name; default is pkbrandink
+```
+
+Head and foot are the only departure from acmsmall's page, and they cost the
+text block nothing: `head` and `headsep` trade against each other (14.3 pt +
+15.4 pt becomes 21 pt + 8.7 pt on Letter, 13 pt + 14 pt becomes 19 pt + 8 pt
+under `acmtrim`), so `\textwidth`, `\textheight`, and `\topmargin` come out at
+the same values acmart computes. Pass `noheader` to drop the furniture entirely
+and fall back to a centered page number.
 
 Pass `acmtrim` for acmsmall's own 6.75 x 10 in page at 10 pt, reproducing
 acmart's `\textwidth` of 395.82 pt and `\textheight` of 574 pt to the point:

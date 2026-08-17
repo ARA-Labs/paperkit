@@ -23,6 +23,8 @@
 %%   nolibertine    arxiv1col only: keep the default fonts instead of Libertine
 %%   acmtrim        arxiv1col only: acmsmall's own 6.75x10in page, 10pt body,
 %%                  instead of Letter with the same margin proportions
+%%   noheader       arxiv1col only: drop the branded running head and foot and
+%%                  fall back to the article default page number
 %%
 %% The venue can also be set from the command line without editing main.tex:
 %%   pdflatex "\def\pkvenue{neurips}\input{main.tex}"
@@ -48,6 +50,7 @@
 \newif\ifpk@natbib     \pk@natbibtrue
 \newif\ifpk@libertine  \pk@libertinetrue
 \newif\ifpk@acmtrim    \pk@acmtrimfalse
+\newif\ifpk@header     \pk@headertrue
 
 \DeclareOption{arxiv}{\def\pk@venue{arxiv}}
 \DeclareOption{arxiv1col}{\def\pk@venue{arxiv1col}}
@@ -65,6 +68,7 @@
 \DeclareOption{nonatbib}{\pk@natbibfalse}
 \DeclareOption{nolibertine}{\pk@libertinefalse}
 \DeclareOption{acmtrim}{\pk@acmtrimtrue}
+\DeclareOption{noheader}{\pk@headerfalse}
 \DeclareOption*{\PackageWarning{paperkit}{Unknown option `\CurrentOption'}}
 \ProcessOptions\relax
 
@@ -180,10 +184,15 @@
     % acmart's acmsmall page, copied value for value: a 6.75x10in trim with
     % 46pt sides, a 58pt top and a 44pt bottom, which lands \textwidth on
     % 395.82pt and \textheight on 574pt -- the same numbers acmart computes.
+    %
+    % head and headsep are the one departure, and they cancel: acmsmall's
+    % 13pt+14pt becomes 19pt+8pt, so the running head has room for the brand
+    % lockup while the 27pt total -- and with it the top of the text block --
+    % is exactly where acmart puts it.
     \RequirePackage{geometry}
     \geometry{paperwidth=6.75in, paperheight=10in,
       left=46pt, right=46pt, top=58pt, bottom=44pt,
-      includeheadfoot, head=13pt, headsep=14pt, foot=2pc,
+      includeheadfoot, head=19pt, headsep=8pt, foot=2pc,
       marginparwidth=2pc, heightrounded}
   \else
     % acmsmall's proportions on a US Letter sheet. Every margin is the same
@@ -203,9 +212,12 @@
     % round \textheight against. size11.clo brings LaTeX's own 13.6pt leading.
     \input{size11.clo}\normalsize
     \RequirePackage{geometry}
+    % head and headsep again trade against each other: 14.3pt+15.4pt becomes
+    % 21pt+8.7pt, so the branded running head fits and the 29.7pt total -- the
+    % top of the text block -- does not move.
     \geometry{letterpaper,
       left=57.93pt, right=57.93pt, top=63.8pt, bottom=48.4pt,
-      includeheadfoot, head=14.3pt, headsep=15.4pt, foot=26.4pt,
+      includeheadfoot, head=21pt, headsep=8.7pt, foot=26.4pt,
       marginparwidth=2pc, heightrounded}
   \fi
   % geometry before hyperref, so hyperref sees the final page size.
@@ -384,6 +396,14 @@
 \let\pk@logotext\@empty
 \let\pk@logofile\@empty
 \let\pk@extralogos\@empty
+\let\pk@shorttitle\@empty
+\let\pk@shortauthors\@empty
+\let\pk@copyright\@empty
+\def\pk@date{\today}
+\let\pk@brandtext\@empty
+\let\pk@brandfile\@empty
+\def\pk@brandheight{11pt}
+\newif\ifpk@brandset \pk@brandsetfalse
 
 % \papertitle[<plain text for PDF metadata>]{<typeset title, \\ allowed>}
 \newcommand{\papertitle}[2][]{%
@@ -391,8 +411,19 @@
   \def\pk@tmp{#1}%
   \ifx\pk@tmp\@empty\gdef\pk@pdftitle{#2}\else\gdef\pk@pdftitle{#1}\fi
 }
-% Short title for the running header (ICML-based venues only).
-\newcommand{\paperrunningtitle}[1]{\@ifundefined{icmltitlerunning}{}{\icmltitlerunning{#1}}}
+% Short title for the running header: the ICML-based venues take it through
+% \icmltitlerunning, arxiv1col sets it on the recto side of its own head.
+\newcommand{\paperrunningtitle}[1]{%
+  \gdef\pk@shorttitle{#1}%
+  \@ifundefined{icmltitlerunning}{}{\icmltitlerunning{#1}}%
+}
+% Short author list for the verso side of the arxiv1col running head, the way
+% acmsmall uses \shortauthors: `Falck et al.', not the full superscripted list.
+\newcommand{\papershortauthors}[1]{\gdef\pk@shortauthors{#1}}
+% Date in the first-page head, opposite the lockup. \paperdate{} blanks it.
+\newcommand{\paperdate}[1]{\gdef\pk@date{#1}}
+% Rights line at the left of the arxiv1col page foot.
+\newcommand{\papercopyright}[1]{\gdef\pk@copyright{#1}}
 \newcommand{\paperauthors}[1]{\gdef\pk@authors{#1}}
 \newcommand{\paperaffiliations}[1]{\gdef\pk@affils{#1}}
 \newcommand{\paperabstract}[1]{\gdef\pk@abstract{#1}}
@@ -401,6 +432,14 @@
 \newcommand{\papercode}[1]{\gdef\pk@code{#1}}
 % \paperlogo{<wordmark text>}{<image file, may be empty>}
 \newcommand{\paperlogo}[2]{\gdef\pk@logotext{#1}\gdef\pk@logofile{#2}}
+% \paperbrand[<mark height>]{<mark image>}{<wordmark text>} -- the horizontal
+% lockup at the left of the arxiv1col running head. Either half may be empty,
+% so a ready-made lockup image goes in as \paperbrand{lockup.pdf}{}. Left
+% unset, the head borrows whatever \paperlogo already carries.
+\newcommand{\paperbrand}[3][11pt]{%
+  \pk@brandsettrue
+  \def\pk@brandheight{#1}\gdef\pk@brandfile{#2}\gdef\pk@brandtext{#3}%
+}
 % \addpaperlogo[<height>]{<image file>} -- extra marks, laid out to the right of
 % the first one. Call it once per logo, in the order they should appear.
 \newcommand{\addpaperlogo}[2][\pk@logoheight]{%
@@ -553,6 +592,99 @@
   \vskip 0.2in
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% arxiv1col running head and foot %%
+% A branded page furniture for the one-column preprint: the lockup at the left
+% of the head on every page, and opposite it the date on page 1 and then
+% acmsmall's alternation -- short title on the recto, short authors on the
+% verso -- from page 2 on. A rule in the brand ink closes the head, a matching
+% one opens the foot, and the page number sits at the outer edge of the foot.
+
+% The two colours the ARA mark is drawn in.
+\definecolor{pkbrandink}{HTML}{16122D}
+\definecolor{pkbrandaccent}{HTML}{E9A16F}
+% \paperbrandcolor{<ink hex>}{<accent hex>}
+\newcommand{\paperbrandcolor}[2]{%
+  \definecolor{pkbrandink}{HTML}{#1}\definecolor{pkbrandaccent}{HTML}{#2}}
+% The rules follow the ink by default; \paperrulecolor takes any xcolor name.
+\def\pk@rulecolor{pkbrandink}
+\newcommand{\paperrulecolor}[1]{\def\pk@rulecolor{#1}}
+\def\pk@rulewidth{0.4pt}
+
+\ifpk@onecol\ifpk@header
+  \RequirePackage{fancyhdr}
+
+  % Unset, the lockup falls back to the panel logo. Resolved once the preamble
+  % has run, so \paperlogo and \paperbrand may come in either order.
+  \AtBeginDocument{%
+    \ifpk@brandset\else
+      \let\pk@brandfile\pk@logofile
+      \let\pk@brandtext\pk@logotext
+    \fi
+  }
+
+  % Mark and wordmark centred on each other. \vcenter needs math mode, which
+  % is also what keeps the tall mark from pushing the head baseline around.
+  % The wordmark always takes the ink, never a user-chosen rule colour.
+  \newcommand{\pk@lockup}{%
+    \begingroup
+      \color{pkbrandink}%
+      \ifx\pk@brandfile\@empty\else
+        $\vcenter{\hbox{\includegraphics[height=\pk@brandheight]{\pk@brandfile}}}$%
+      \fi
+      \ifx\pk@brandtext\@empty\else
+        \ifx\pk@brandfile\@empty\else\hskip 5\p@\fi
+        $\vcenter{\hbox{\sffamily\fontsize{10}{10}\selectfont\pk@brandtext}}$%
+      \fi
+    \endgroup
+  }
+
+  % acmsmall's alternation. Either side falls back to the other, so a paper
+  % that sets only \paperrunningtitle still gets a head on every page.
+  \newcommand{\pk@head@title}{%
+    \ifx\pk@shorttitle\@empty\pk@pdftitle\else\pk@shorttitle\fi}
+  \newcommand{\pk@head@authors}{%
+    \ifx\pk@shortauthors\@empty\pk@head@title\else\pk@shortauthors\fi}
+  \newcommand{\pk@runninghead}{%
+    \small\itshape
+    \ifodd\value{page}\pk@head@title\else\pk@head@authors\fi}
+
+  % fancyhdr draws both rules in vertical mode, so the colour has to arrive as
+  % a whatsit ahead of the rule rather than as \textcolor around it. The
+  % \vskip corrections are fancyhdr's own: without them the rules land a rule
+  % width and a \footruleskip away from where the package means them to sit.
+  \renewcommand{\headrulewidth}{\pk@rulewidth}
+  \renewcommand{\footrulewidth}{\pk@rulewidth}
+  \renewcommand{\headrule}{%
+    {\color{\pk@rulecolor}\hrule\@height\headrulewidth\@width\headwidth}%
+    \vskip-\headrulewidth}
+  \renewcommand{\footrule}{%
+    \vskip-\footruleskip\vskip-\footrulewidth
+    {\color{\pk@rulecolor}\hrule\@height\footrulewidth\@width\headwidth}%
+    \vskip\footruleskip}
+
+  \newcommand{\pk@foot@left}{%
+    \ifx\pk@copyright\@empty\else{\footnotesize\pk@copyright}\fi}
+  \newcommand{\pk@foot@right}{{\small\thepage}}
+
+  % Page 1: lockup against the date.
+  \fancypagestyle{pkfirst}{%
+    \fancyhf{}%
+    \fancyhead[L]{\pk@lockup}%
+    \fancyhead[R]{\ifx\pk@date\@empty\else{\small\pk@date}\fi}%
+    \fancyfoot[L]{\pk@foot@left}%
+    \fancyfoot[R]{\pk@foot@right}%
+  }
+  % Page 2 on: lockup against the alternating title / author list.
+  \fancypagestyle{pkmain}{%
+    \fancyhf{}%
+    \fancyhead[L]{\pk@lockup}%
+    \fancyhead[R]{\pk@runninghead}%
+    \fancyfoot[L]{\pk@foot@left}%
+    \fancyfoot[R]{\pk@foot@right}%
+  }
+  \AtBeginDocument{\pagestyle{pkmain}}
+\fi\fi
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% render %%
 \newcommand{\makepaperheader}{%
   \ifx\pk@title\@empty
@@ -581,6 +713,9 @@
       \fi
     \fi
   \fi
+  % Last, so it wins over the \thispagestyle{plain} that the panel branch and
+  % \maketitle both issue for the first page.
+  \ifpk@onecol\ifpk@header\thispagestyle{pkfirst}\fi\fi
   \@ifundefined{hypersetup}{}{\hypersetup{pdftitle={\pk@pdftitle}}}%
 }
 \endinput
