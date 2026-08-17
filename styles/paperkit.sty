@@ -399,7 +399,9 @@
 \let\pk@shorttitle\@empty
 \let\pk@shortauthors\@empty
 \let\pk@copyright\@empty
-\def\pk@date{\today}
+% Empty by default, as in acmart: the first-page head keeps that corner for an
+% optional badge and carries no date. \paperdate{...} opts one in.
+\let\pk@date\@empty
 \let\pk@brandtext\@empty
 \let\pk@brandfile\@empty
 \def\pk@brandheight{11pt}
@@ -420,7 +422,7 @@
 % Short author list for the verso side of the arxiv1col running head, the way
 % acmsmall uses \shortauthors: `Falck et al.', not the full superscripted list.
 \newcommand{\papershortauthors}[1]{\gdef\pk@shortauthors{#1}}
-% Date in the first-page head, opposite the lockup. \paperdate{} blanks it.
+% Optional date in the first-page head, opposite the lockup. Off unless set.
 \newcommand{\paperdate}[1]{\gdef\pk@date{#1}}
 % Rights line at the left of the arxiv1col page foot.
 \newcommand{\papercopyright}[1]{\gdef\pk@copyright{#1}}

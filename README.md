@@ -65,7 +65,7 @@ every other venue:
 \paperbrand[11pt]{figures/ara-logo.png}{ARA Labs}  % lockup at the left of the head
 \papershortauthors{Falck et al.}                   % verso side of the head
 \papercopyright{\textcopyright\ 2026 ARA Labs. All rights reserved.}
-\paperdate{14 August 2026}      % first-page head; defaults to \today, {} blanks it
+\paperdate{14 August 2026}                         % optional; off by default
 ```
 
 Keep `sections/abstract.tex` as raw body text with no `\begin{abstract}` wrapper.
@@ -158,11 +158,16 @@ page. Opposite it:
 
 | Page | Right of the head |
 | --- | --- |
-| 1 | `\paperdate`, defaulting to `\today` |
+| 1 | empty, unless `\paperdate` is set |
 | odd | `\paperrunningtitle` |
 | even | `\papershortauthors` |
 
-That alternation is acmsmall's: the short title on the recto, the short author
+The first page is empty on that side because acmart's is: `firstpagestyle`
+keeps the top right for `\acmBadgeR`, the artifact-evaluation seal, which almost
+no paper sets. acmart puts no date in the head at all -- its publication line
+lives in the foot, in the slot `\papercopyright` takes here.
+
+The alternation is acmsmall's: the short title on the recto, the short author
 list on the verso. Either side falls back to the other when only one is set, and
 the short title falls back to the plain-text title from `\papertitle`, so the
 head is never blank. A rule in the brand ink closes the head and opens the foot,
