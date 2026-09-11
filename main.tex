@@ -36,15 +36,17 @@
 \papercode{\href{https://github.com/you/your-repo}{github.com/you/your-repo}}
 % Wordmark plus one or more logos, laid out at the right of the panel footer.
 % Swap in your own files; \addpaperlogo takes an optional height. arxiv1col has
-% no panel footer -- it puts the emails at the foot of page 1 and the brand in
-% the running head -- so these two apply to the other venues.
+% no panel footer -- it puts the emails at the foot of page 1 -- so there the
+% \paperlogo mark sits at the right of the author block and \addpaperlogo
+% marks are dropped.
 \paperlogo{}{figures/ara-logo.png}
 \paperlogoheight{20pt}
 % \addpaperlogo[26pt]{figures/logo-placeholder.pdf}
 
 % arxiv1col only: the horizontal lockup at the left of every running head, and
 % the short forms that alternate against it on the right -- short title on odd
-% pages, short authors on even ones, the way acmsmall does it.
+% pages, short authors on even ones, the way acmsmall does it. Left unset, the
+% short authors fall back to the full \paperauthors list.
 \paperbrand[11pt]{figures/ara-logo.png}{ARA Labs}
 \papershortauthors{First Author et al.}
 % \papercopyright{\textcopyright\ 2026 ARA Labs.}  % optional; foot is bare

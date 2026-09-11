@@ -413,6 +413,8 @@
 }
 % Short author list for the verso side of the arxiv1col running head, the way
 % acmsmall uses \shortauthors: `Falck et al.', not the full superscripted list.
+% Left unset, the head carries the full \paperauthors list, as acmart does when
+% no short form is given.
 \newcommand{\papershortauthors}[1]{\gdef\pk@shortauthors{#1}}
 % Optional date in the first-page head, opposite the lockup. Off unless set.
 \newcommand{\paperdate}[1]{\gdef\pk@date{#1}}
@@ -529,6 +531,31 @@
   \def\pk@alignarg{#1}%
   \ifx\pk@alignarg\pk@centerword\pk@panelcentertrue\else\pk@panelcenterfalse\fi}
 
+% The author lines of the panel: names, affiliations, note. Shared by the
+% plain stack and the arxiv1col side-by-side arrangement with the logo.
+\newcommand{\pk@panelauthors}{%
+  \ifx\pk@authors\@empty\else
+    {\sffamily\bfseries\normalsize \pk@authors\par}
+  \fi
+  \ifx\pk@affils\@empty\else
+    \vskip 6pt
+    {\small \pk@affils\par}
+  \fi
+  \ifx\pk@note\@empty\else
+    \vskip 4pt
+    {\small \pk@note\par}
+  \fi
+}
+% Wordmark plus mark, as the footer row sets them, for the arxiv1col panel.
+\newcommand{\pk@panellogo}{%
+  \ifx\pk@logotext\@empty\else
+    $\vcenter{\hbox{\sffamily\bfseries\small \pk@logotext}}$\,%
+  \fi
+  \ifx\pk@logofile\@empty\else
+    $\vcenter{\hbox{\includegraphics[height=\pk@logoheight]{\pk@logofile}}}$%
+  \fi
+}
+
 \newcommand{\pk@panelbody}{%
   \begin{pk@panelbox}
     % The title block, centred or flush left. Each piece closes its own \par
@@ -543,17 +570,25 @@
         \vskip 4pt
         {\small Paper under double-blind review\par}
       \else
-        \ifx\pk@authors\@empty\else
-          \vskip 12pt
-          {\sffamily\bfseries\normalsize \pk@authors\par}
-        \fi
-        \ifx\pk@affils\@empty\else
-          \vskip 6pt
-          {\small \pk@affils\par}
-        \fi
-        \ifx\pk@note\@empty\else
-          \vskip 4pt
-          {\small \pk@note\par}
+        \vskip 12pt
+        % arxiv1col has no panel footer, so the \paperlogo mark (and wordmark,
+        % if any) sits at the right of the author block instead, vertically
+        % centred on it. The other venues keep the mark in the footer row.
+        \ifpk@onecol
+          \setbox\@tempboxa\hbox{\pk@panellogo}%
+          \ifdim\wd\@tempboxa=\z@
+            \pk@panelauthors
+          \else
+            \noindent
+            \parbox[c]{\dimexpr\linewidth-\wd\@tempboxa-12pt\relax}{%
+              \ifpk@panelcenter\centering\else\raggedright\fi
+              \pk@panelauthors}%
+            \hfill
+            \box\@tempboxa
+            \par
+          \fi
+        \else
+          \pk@panelauthors
         \fi
       \fi
     \endgroup
@@ -665,12 +700,16 @@
     \endgroup
   }
 
-  % acmsmall's alternation. Either side falls back to the other, so a paper
-  % that sets only \paperrunningtitle still gets a head on every page.
+  % acmsmall's alternation. Each side falls back to its own full form first
+  % (the PDF title, the \paperauthors list), as acmart does when \shortauthors
+  % is unset; a head with no authors at all borrows the title, so a paper that
+  % sets only \paperrunningtitle still gets a head on every page.
   \newcommand{\pk@head@title}{%
     \ifx\pk@shorttitle\@empty\pk@pdftitle\else\pk@shorttitle\fi}
   \newcommand{\pk@head@authors}{%
-    \ifx\pk@shortauthors\@empty\pk@head@title\else\pk@shortauthors\fi}
+    \ifx\pk@shortauthors\@empty
+      \ifx\pk@authors\@empty\pk@head@title\else\pk@authors\fi
+    \else\pk@shortauthors\fi}
   \newcommand{\pk@runninghead}{%
     \pk@headfootfont
     \ifodd\value{page}\pk@head@title\else\pk@head@authors\fi}
