@@ -63,7 +63,7 @@ every other venue:
 
 ```latex
 \paperbrand[11pt]{figures/ara-logo.png}{ARA Labs}  % lockup at the left of the head
-\papershortauthors{Falck et al.}                   % verso side of the head
+\papershortauthors{Falck et al.}                   % verso side of the head; else \paperauthors
 \papercopyright{\textcopyright\ 2026 ARA Labs. All rights reserved.}
 \paperdate{14 August 2026}                         % optional; off by default
 ```
@@ -160,7 +160,7 @@ page. Opposite it:
 | --- | --- |
 | 1 | empty, unless `\paperdate` is set |
 | odd | `\paperrunningtitle` |
-| even | `\papershortauthors` |
+| even | `\papershortauthors`, else `\paperauthors` |
 
 The first page is empty on that side because acmart's is: `firstpagestyle`
 keeps the top right for `\acmBadgeR`, the artifact-evaluation seal, which almost
@@ -170,9 +170,11 @@ lives in the foot, which is why `\papercopyright` sits there.
 The alternation is acmsmall's: the short title on the recto, the short author
 list on the verso, set in acmart's `\@headfootfont` -- Biolinum at footnote
 size, the same sans as the section heads. The lockup wordmark and the folio
-take it too, so both sides of the head sit on one baseline at one size. Either
-side falls back to the other when only one is set, and the short title falls
-back to the plain-text title from `\papertitle`, so the head is never blank.
+take it too, so both sides of the head sit on one baseline at one size. Each
+side falls back to its full form, as acmart does when `\shortauthors` is unset:
+the short title to the plain-text title from `\papertitle`, the short authors
+to the `\paperauthors` list. A head with no authors at all borrows the title,
+so the head is never blank.
 
 Neither end carries a rule, as in acmart -- both `standardpagestyle` and
 `firstpagestyle` zero the two widths.
@@ -188,7 +190,8 @@ The title, authors, affiliations, and note are flush left, as in acmsmall. The
 abstract below them is justified, which is the one departure from the
 two-column `arxiv` panel -- that one keeps its ragged right. The panel ends at
 the abstract: there is no footer row, since the emails are at the foot of the
-page and the brand is in the head.
+page and the brand is in the head. The `\paperlogo` mark and wordmark, if set,
+sit at the right of the author block instead, vertically centred on it.
 
 Centre the block instead with:
 
@@ -269,9 +272,9 @@ wordmark plus any number of logos on the right, all vertically centered:
 ```
 
 `arxiv1col` has no panel footer: it moves correspondence and code to the foot
-of the first page and leaves the brand to the running-head lockup, so
-`\paperlogo` and `\addpaperlogo` do nothing there. Everything else uses the
-footer as described.
+of the first page. The `\paperlogo` mark and wordmark sit at the right of the
+author block instead, vertically centred on it, and `\addpaperlogo` does
+nothing there. Everything else uses the footer as described.
 
 Drop the wordmark with `\paperlogo{}{...}`, or the image with
 `\paperlogo{Your Lab}{}`. Vector logos (PDF, EPS) stay crisp at any size; PNG
