@@ -295,8 +295,12 @@
   \fi
   \setlength{\parskip}{\z@}
 
-  % Headings: sans bold, flush left, tight above and below; subsubsection and
-  % paragraph run into the text and take a closing period, as in acmart.
+  % Headings: sans bold, flush left, tight above and below; paragraph runs
+  % into the text and takes a closing period, as in acmart. subsubsection
+  % instead stands on its own line above its paragraph, sans bold like
+  % \section/\subsection but one size smaller, so it reads lighter than
+  % \subsection while staying distinct from the run-in, serif, italic,
+  % period-terminated \paragraph below.
   \newcommand{\pk@headraggedright}{%
     \@rightskip\@flushglue \rightskip\@rightskip
     \leftskip\z@skip \parindent\z@}
@@ -311,8 +315,8 @@
     {\normalfont\sffamily\bfseries\pk@headraggedright}}
   \renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
     {-.5\baselineskip \@plus -2\p@ \@minus -.2\p@}%
-    {-3.5\p@}%
-    {\normalfont\sffamily\itshape\pk@adddot}}
+    {.15\baselineskip}%
+    {\normalfont\sffamily\bfseries\small\pk@headraggedright}}
   \renewcommand\paragraph{\@startsection{paragraph}{4}{\parindent}%
     {-.5\baselineskip \@plus -2\p@ \@minus -.2\p@}%
     {-3.5\p@}%
