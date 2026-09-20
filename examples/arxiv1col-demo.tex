@@ -78,13 +78,14 @@ Section~\ref{sec:headings} is above this one, and Table~\ref{tab:levels} lists
 every level.
 
 \subsubsection{A subsubsection}
-The third level runs into the text, set in Biolinum italic and closed with a
-period that paperkit adds for you. Write the title without the period; the
-style supplies it.
+The third level stands on its own line, set in Biolinum sans bold like a
+section head but one size smaller, so it stays distinct from a subsection
+while reading lighter than one.
 
-\paragraph{A paragraph head} The fourth level runs in as well, in Libertine
-italic and indented to the paragraph indent. It takes its own closing period
-the same way.
+\paragraph{A paragraph head} The fourth level runs into the text, in
+Libertine italic and indented to the paragraph indent, closed with a period
+that paperkit adds for you. Write the title without the period; the style
+supplies it.
 
 \section{Material that stresses the layout}
 
@@ -122,10 +123,10 @@ from \verb|\cmark| and \verb|\xmark|.
     \toprule
     Level & Font & Run-in & Numbered \\
     \midrule
-    \texttt{\textbackslash section}       & Biolinum bold   & \xmark & \cmark \\
-    \texttt{\textbackslash subsection}    & Biolinum bold   & \xmark & \cmark \\
-    \texttt{\textbackslash subsubsection} & Biolinum italic & \cmark & \cmark \\
-    \texttt{\textbackslash paragraph}     & Libertine italic & \cmark & \xmark \\
+    \texttt{\textbackslash section}       & Biolinum bold       & \xmark & \cmark \\
+    \texttt{\textbackslash subsection}    & Biolinum bold       & \xmark & \cmark \\
+    \texttt{\textbackslash subsubsection} & Biolinum bold small & \xmark & \cmark \\
+    \texttt{\textbackslash paragraph}     & Libertine italic    & \cmark & \xmark \\
     \bottomrule
   \end{tabular}
   \caption{How \texttt{arxiv1col} sets each heading level, following
