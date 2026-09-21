@@ -179,19 +179,19 @@ so the head is never blank.
 Neither end carries a rule, as in acmart -- both `standardpagestyle` and
 `firstpagestyle` zero the two widths.
 
-The foot of the first page carries `\papercorrespondence` and `\papercode`,
-where acmsmall puts its author addresses, rather than running them under the
-abstract. They wrap inside a measure that stops short of the folio. Later pages
-show the page number alone, unless `\papercopyright` is set.
+The foot of the first page carries `\papercorrespondence`, where acmsmall puts
+its author addresses. It wraps inside a measure that stops short of the folio.
+Later pages show the page number alone, unless `\papercopyright` is set.
 
 ### The title block
 
 The title, authors, affiliations, and note are flush left, as in acmsmall. The
 abstract below them is justified, which is the one departure from the
-two-column `arxiv` panel -- that one keeps its ragged right. The panel ends at
-the abstract: there is no footer row, since the emails are at the foot of the
-page and the brand is in the head. The `\paperlogo` mark and wordmark, if set,
-sit at the right of the author block instead, vertically centred on it.
+two-column `arxiv` panel -- that one keeps its ragged right. The `\papercode`
+link closes the panel, set small under the abstract. There is no footer row:
+the emails are at the foot of the page and the brand is in the head. The
+`\paperlogo` mark and wordmark, if set, sit at the right of the author block
+instead, vertically centred on it.
 
 Centre the block instead with:
 
@@ -271,10 +271,11 @@ wordmark plus any number of logos on the right, all vertically centered:
 \addpaperlogo[22pt]{figures/company.pdf}    % optional per-logo height
 ```
 
-`arxiv1col` has no panel footer: it moves correspondence and code to the foot
-of the first page. The `\paperlogo` mark and wordmark sit at the right of the
-author block instead, vertically centred on it, and `\addpaperlogo` does
-nothing there. Everything else uses the footer as described.
+`arxiv1col` has no panel footer: it moves the correspondence to the foot of
+the first page and sets the code link under the abstract instead. The
+`\paperlogo` mark and wordmark sit at the right of the author block, vertically
+centred on it, and `\addpaperlogo` does nothing there. Everything else uses the
+footer as described.
 
 Drop the wordmark with `\paperlogo{}{...}`, or the image with
 `\paperlogo{Your Lab}{}`. Vector logos (PDF, EPS) stay crisp at any size; PNG
@@ -285,8 +286,8 @@ out of the box. Replace it with your real mark, or rebuild a different one from
 `figures/logo-placeholder.tex` (`pdflatex logo-placeholder.tex`).
 
 In anonymous mode the panel prints "Anonymous Authors" and drops the
-correspondence row on its own, so a blind submission stays blind even if you
-force `panel` on.
+correspondence row and the code link on its own, so a blind submission stays
+blind even if you force `panel` on.
 
 ## What the package already loads
 

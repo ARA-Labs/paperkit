@@ -604,9 +604,20 @@
       \ifpk@onecol\else\raggedright\fi
       \pk@abstract\par
     \fi
-    % arxiv1col moves correspondence and code to the foot of the first page,
-    % so the panel ends at the abstract and the mark is left to the head.
-    \ifpk@onecol\else\ifpk@anon\else\pk@footerrow\fi\fi
+    % arxiv1col keeps the code link in the panel, under the abstract where a
+    % reader looks for it, and moves only the correspondence to the foot of the
+    % first page; the two-column panel keeps both in its footer row below.
+    % Anonymous mode drops both, as a repo link would deanonymize the paper.
+    \ifpk@onecol
+      \ifpk@anon\else
+        \ifx\pk@code\@empty\else
+          \vskip 10pt
+          \noindent{\pk@footerfont\textbf{Code:}\ \pk@code\par}
+        \fi
+      \fi
+    \else
+      \ifpk@anon\else\pk@footerrow\fi
+    \fi
   \end{pk@panelbox}%
 }
 
@@ -625,6 +636,18 @@
   \maketitle
   \ifx\pk@abstract\@empty\else
     \begin{abstract}\pk@abstract\end{abstract}%
+  \fi
+  % arxiv1col without the panel keeps the code link under the abstract, as
+  % the panel puts it; the first-page foot does not carry it. Two-column
+  % venues without the panel never showed the link, and plain has no venue
+  % word to hang it on, so both stay as they were.
+  \ifpk@onecol
+    \ifpk@anon\else
+      \ifx\pk@code\@empty\else
+        \vskip 4pt
+        \noindent{\pk@footerfont\textbf{Code:}\ \pk@code\par}
+      \fi
+    \fi
   \fi
 }
 
@@ -728,24 +751,21 @@
     \ifx\pk@copyright\@empty\else{\footnotesize\pk@copyright}\fi}
   \newcommand{\pk@foot@right}{{\pk@headfootfont\thepage}}
 
-  % Correspondence and code go to the foot of the first page, where acmsmall
-  % puts its author addresses, instead of riding under the abstract. Set in a
-  % \parbox so a long address wraps instead of running into the folio; the
-  % measure stops short of it. Two lines clear the bottom margin, a third
-  % would not, so the rights line only joins them if it is short.
+  % The correspondence goes to the foot of the first page, where acmsmall
+  % puts its author addresses; the code link stays in the panel, under the
+  % abstract. Set in a \parbox so a long address wraps instead of running
+  % into the folio; the measure stops short of it. Two lines clear the bottom
+  % margin, a third would not, so the rights line only joins them if it is
+  % short.
   \newcommand{\pk@firstfoot@left}{%
     \pk@firstfootfalse
     \ifx\pk@corr\@empty\else\pk@firstfoottrue\fi
-    \ifx\pk@code\@empty\else\pk@firstfoottrue\fi
     \ifx\pk@copyright\@empty\else\pk@firstfoottrue\fi
     \ifpk@firstfoot
       \parbox[t]{.86\headwidth}{%
         \footnotesize\raggedright
         \ifx\pk@corr\@empty\else
           \textbf{Correspondence:}\ \pk@corr\par
-        \fi
-        \ifx\pk@code\@empty\else
-          \textbf{Code:}\ \pk@code\par
         \fi
         \ifx\pk@copyright\@empty\else\pk@copyright\par\fi
       }%

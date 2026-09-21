@@ -39,3 +39,16 @@ compile_fixture tests/paperkit-natbib.tex arxiv1col,nolibertine natbib
 # rather than the panel.
 compile_fixture tests/paperkit-natbib.tex arxiv1col,noheader natbib
 compile_fixture tests/paperkit-natbib.tex arxiv1col,nopanel natbib
+
+# The code link must survive arxiv1col,nopanel: it renders under the native
+# abstract, and no footer carries it anymore. A compile-only pass cannot see
+# the difference, so extract the text and look.
+if command -v pdftotext >/dev/null 2>&1; then
+  printf 'Checking arxiv1col,nopanel renders the code link... '
+  if pdftotext "$out/paperkit-arxiv1col-nopanel-natbib.pdf" - 2>/dev/null | grep -q 'Code:'; then
+    printf 'ok\n'
+  else
+    printf 'MISSING\n'
+    exit 1
+  fi
+fi
