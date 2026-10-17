@@ -294,6 +294,10 @@
     \setlength{\parindent}{11\p@}
   \fi
   \setlength{\parskip}{\z@}
+  % The panel is a tcolorbox, which zeroes \parindent like a \parbox does;
+  % keep the body indent so the panel abstract can restore it.
+  \newdimen\pk@bodyparindent
+  \pk@bodyparindent\parindent
 
   % Headings: sans bold, flush left, tight above and below; paragraph runs
   % into the text and takes a closing period, as in acmart. subsubsection
@@ -598,10 +602,12 @@
     \endgroup
     % Justified under arxiv1col, ragged in the two-column panel. This does not
     % follow the title alignment: \paperheadalign moves the block above without
-    % disturbing the abstract's setting.
+    % disturbing the abstract's setting. Under arxiv1col a multi-paragraph
+    % abstract indents its later paragraphs by the body indent, as the nopanel
+    % abstract does; the first paragraph stays flush left.
     \ifx\pk@abstract\@empty\else
       \vskip 14pt
-      \ifpk@onecol\else\raggedright\fi
+      \ifpk@onecol\parindent\pk@bodyparindent\noindent\else\raggedright\fi
       \pk@abstract\par
     \fi
     % arxiv1col keeps the code link in the panel, under the abstract where a
